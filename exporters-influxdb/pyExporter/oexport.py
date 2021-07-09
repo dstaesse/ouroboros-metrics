@@ -535,7 +535,7 @@ class OuroborosExporter:
 
     def __init__(self,
                  bucket='ouroboros-metrics',
-                 config='/home/dstaesse/git/ouroboros_influx_exporter/config.ini',
+                 config='./config.ini',
                  rib_path='/tmp/ouroboros/'):
 
         point_settings = PointSettings()
