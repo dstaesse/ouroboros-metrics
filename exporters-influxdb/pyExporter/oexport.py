@@ -203,9 +203,15 @@ class OuroborosRIBReader:
     def _get_address_for_ipcp(self,
                               ipcp_name):
 
-        _dir = self._get_dt_dir_for_ipcp(ipcp_name)
-        if _dir and len(_dir) > 3:
-            return _dir[3:]
+        path = self._get_dir_for_ipcp(ipcp_name)
+        try:
+            _subdirs = [f.name for f in os.scandir(path)]
+        except IOError as _:
+            return None
+
+        for _dir in _subdirs:
+            if len(_dir) > 3 and _dir[:3] == 'dt.':
+                return _dir[3:]
 
         return None
 
