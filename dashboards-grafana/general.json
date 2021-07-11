@@ -17,7 +17,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 1,
-  "iteration": 1625389625118,
+  "iteration": 1625997238133,
   "links": [],
   "panels": [
     {
@@ -1961,7 +1961,7 @@
       },
       "targets": [
         {
-          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_flow_allocator_recv_pkts_total\")\n  |> filter(fn: (r) => r[\"_field\"] == \"recv_pkts_total\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_flow_allocator_sent_pkts_total\")\n  |> filter(fn: (r) => r[\"_field\"] == \"sent_pkts_total\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
           "refId": "A"
         }
       ],
@@ -1993,8 +1993,7 @@
             "lineWidth": 1,
             "pointSize": 2,
             "scaleDistribution": {
-              "log": 10,
-              "type": "log"
+              "type": "linear"
             },
             "showPoints": "auto",
             "spanNulls": false,
@@ -2076,8 +2075,7 @@
             "lineWidth": 1,
             "pointSize": 2,
             "scaleDistribution": {
-              "log": 10,
-              "type": "log"
+              "type": "linear"
             },
             "showPoints": "auto",
             "spanNulls": false,
@@ -2369,7 +2367,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 11,
+        "h": 10,
         "w": 6,
         "x": 0,
         "y": 69
@@ -2451,12 +2449,12 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 11,
+        "h": 10,
         "w": 6,
         "x": 6,
         "y": 69
       },
-      "id": 28,
+      "id": 29,
       "options": {
         "legend": {
           "calcs": [],
@@ -2469,11 +2467,11 @@
       },
       "targets": [
         {
-          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_flow_allocator_down_cong_lvl\")\n  |> filter(fn: (r) => r[\"_field\"] == \"down_cong_lvl\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_flow_allocator_up_cong_lvl\")\n  |> filter(fn: (r) => r[\"_field\"] == \"up_cong_lvl\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
           "refId": "A"
         }
       ],
-      "title": "Downstream congestion level",
+      "title": "Upstream congestion level",
       "type": "timeseries"
     },
     {
@@ -2533,7 +2531,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 11,
+        "h": 10,
         "w": 6,
         "x": 12,
         "y": 69
@@ -2615,12 +2613,12 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 11,
+        "h": 10,
         "w": 6,
         "x": 18,
         "y": 69
       },
-      "id": 25,
+      "id": 16,
       "options": {
         "legend": {
           "calcs": [],
@@ -2633,11 +2631,11 @@
       },
       "targets": [
         {
-          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_flow_allocator_down_pkt_ctr\")\n  |> filter(fn: (r) => r[\"_field\"] == \"down_pkt_ctr\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_flow_allocator_up_pkt_ctr\")\n  |> filter(fn: (r) => r[\"_field\"] == \"up_pkt_ctr\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
           "refId": "A"
         }
       ],
-      "title": "Downstream packet counter",
+      "title": "Upstream packet counter",
       "type": "timeseries"
     },
     {
@@ -2700,7 +2698,7 @@
         "h": 10,
         "w": 6,
         "x": 0,
-        "y": 80
+        "y": 79
       },
       "id": 14,
       "options": {
@@ -2782,9 +2780,9 @@
         "h": 10,
         "w": 6,
         "x": 6,
-        "y": 80
+        "y": 79
       },
-      "id": 29,
+      "id": 28,
       "options": {
         "legend": {
           "calcs": [],
@@ -2797,11 +2795,11 @@
       },
       "targets": [
         {
-          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_flow_allocator_up_cong_lvl\")\n  |> filter(fn: (r) => r[\"_field\"] == \"up_cong_lvl\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_flow_allocator_down_cong_lvl\")\n  |> filter(fn: (r) => r[\"_field\"] == \"down_cong_lvl\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
           "refId": "A"
         }
       ],
-      "title": "Upstream congestion level",
+      "title": "Downstream congestion level",
       "type": "timeseries"
     },
     {
@@ -2864,7 +2862,7 @@
         "h": 10,
         "w": 6,
         "x": 12,
-        "y": 80
+        "y": 79
       },
       "id": 24,
       "options": {
@@ -2946,9 +2944,9 @@
         "h": 10,
         "w": 6,
         "x": 18,
-        "y": 80
+        "y": 79
       },
-      "id": 16,
+      "id": 25,
       "options": {
         "legend": {
           "calcs": [],
@@ -2961,11 +2959,11 @@
       },
       "targets": [
         {
-          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_flow_allocator_up_pkt_ctr\")\n  |> filter(fn: (r) => r[\"_field\"] == \"up_pkt_ctr\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_flow_allocator_down_pkt_ctr\")\n  |> filter(fn: (r) => r[\"_field\"] == \"down_pkt_ctr\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
           "refId": "A"
         }
       ],
-      "title": "Upstream packet counter",
+      "title": "Downstream packet counter",
       "type": "timeseries"
     },
     {
@@ -3027,7 +3025,7 @@
         "h": 10,
         "w": 6,
         "x": 0,
-        "y": 90
+        "y": 89
       },
       "id": 80,
       "options": {
@@ -3108,7 +3106,7 @@
         "h": 10,
         "w": 6,
         "x": 6,
-        "y": 90
+        "y": 89
       },
       "id": 81,
       "options": {
@@ -3137,7 +3135,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 100
+        "y": 99
       },
       "id": 39,
       "panels": [],
@@ -3204,7 +3202,7 @@
         "h": 11,
         "w": 6,
         "x": 0,
-        "y": 101
+        "y": 100
       },
       "id": 45,
       "options": {
@@ -3286,7 +3284,7 @@
         "h": 11,
         "w": 6,
         "x": 6,
-        "y": 101
+        "y": 100
       },
       "id": 46,
       "options": {
@@ -3367,7 +3365,7 @@
         "h": 11,
         "w": 6,
         "x": 12,
-        "y": 101
+        "y": 100
       },
       "id": 47,
       "options": {
@@ -3447,7 +3445,7 @@
         "h": 11,
         "w": 6,
         "x": 18,
-        "y": 101
+        "y": 100
       },
       "id": 44,
       "options": {
@@ -3527,7 +3525,7 @@
         "h": 11,
         "w": 6,
         "x": 0,
-        "y": 112
+        "y": 111
       },
       "id": 41,
       "options": {
@@ -3607,7 +3605,7 @@
         "h": 11,
         "w": 6,
         "x": 6,
-        "y": 112
+        "y": 111
       },
       "id": 50,
       "options": {
@@ -3687,7 +3685,7 @@
         "h": 11,
         "w": 6,
         "x": 12,
-        "y": 112
+        "y": 111
       },
       "id": 51,
       "options": {
@@ -3767,7 +3765,7 @@
         "h": 11,
         "w": 6,
         "x": 18,
-        "y": 112
+        "y": 111
       },
       "id": 48,
       "options": {
@@ -3847,7 +3845,7 @@
         "h": 11,
         "w": 6,
         "x": 0,
-        "y": 123
+        "y": 122
       },
       "id": 53,
       "options": {
@@ -3928,7 +3926,7 @@
         "h": 11,
         "w": 6,
         "x": 6,
-        "y": 123
+        "y": 122
       },
       "id": 54,
       "options": {
@@ -4008,7 +4006,7 @@
         "h": 11,
         "w": 6,
         "x": 12,
-        "y": 123
+        "y": 122
       },
       "id": 55,
       "options": {
@@ -4088,7 +4086,7 @@
         "h": 11,
         "w": 6,
         "x": 18,
-        "y": 123
+        "y": 122
       },
       "id": 52,
       "options": {
@@ -4107,7 +4105,7 @@
           "refId": "A"
         }
       ],
-      "title": "Flow allocator received packets",
+      "title": "Flow allocator sent packets",
       "type": "timeseries"
     },
     {
@@ -4168,7 +4166,7 @@
         "h": 11,
         "w": 6,
         "x": 0,
-        "y": 134
+        "y": 133
       },
       "id": 49,
       "options": {
@@ -4248,7 +4246,7 @@
         "h": 11,
         "w": 6,
         "x": 6,
-        "y": 134
+        "y": 133
       },
       "id": 42,
       "options": {
@@ -4328,7 +4326,7 @@
         "h": 11,
         "w": 6,
         "x": 12,
-        "y": 134
+        "y": 133
       },
       "id": 43,
       "options": {
@@ -4408,7 +4406,7 @@
         "h": 11,
         "w": 6,
         "x": 18,
-        "y": 134
+        "y": 133
       },
       "id": 56,
       "options": {
@@ -4671,5 +4669,5 @@
   "timezone": "",
   "title": "Ouroboros General Dashboard",
   "uid": "hbIO3HR7z",
-  "version": 95
+  "version": 98
 }
