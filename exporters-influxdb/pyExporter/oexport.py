@@ -36,6 +36,7 @@ import os
 import re
 import socket
 import time
+import argparse
 from datetime import datetime
 from typing import Optional
 
@@ -886,6 +887,10 @@ class OuroborosExporter:
 
 
 if __name__ == '__main__':
-
+    argparser = argparse.ArgumentParser(description="Ouroboros InfluxDB metrics exporter")
+    argparser.add_argument('-i', '--interval', type=int, default='1000',
+                           help="Interval at which to collect metrics (milliseconds)")
+    args = argparser.parse_args()
+    interval_ms = args.interval
     exporter = OuroborosExporter()
-    exporter.run(interval_ms=1000)
+    exporter.run(interval_ms=interval_ms)
