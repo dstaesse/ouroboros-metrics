@@ -302,6 +302,8 @@ class OuroborosRIBReader:
             'Received (bytes)': 'recv_bytes_total',
             'Receive failed (packets)': 'recv_failed_pkts_total',
             'Receive failed (bytes)': 'recv_failed_bytes_total',
+            'Sent flow updates (packets)': 'sent_flow_updates_total',
+            'Received flow updates (packets)': 'recv_flow_updates_total',
             'Congestion avoidance algorithm': None,
             'Upstream congestion level': 'up_cong_lvl',
             'Downstream congestion level': 'down_cong_lvl',
