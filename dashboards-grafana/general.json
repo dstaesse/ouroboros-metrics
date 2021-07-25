@@ -17,7 +17,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 1,
-  "iteration": 1625997238133,
+  "iteration": 1627209606337,
   "links": [],
   "panels": [
     {
@@ -448,7 +448,7 @@
       "type": "timeseries"
     },
     {
-      "collapsed": true,
+      "collapsed": false,
       "datasource": null,
       "gridPos": {
         "h": 1,
@@ -879,7 +879,7 @@
           "refId": "A"
         }
       ],
-      "title": "Retransmission timeout (R-timer)",
+      "title": "Retransmission timer (R-timer)",
       "type": "timeseries"
     },
     {
@@ -960,7 +960,7 @@
           "refId": "A"
         }
       ],
-      "title": "Acknowledgment Timeout (A-timer)",
+      "title": "Acknowledgment Timer (A-timer)",
       "type": "timeseries"
     },
     {
@@ -1692,7 +1692,7 @@
               }
             ]
           },
-          "unit": "binBps"
+          "unit": "bps"
         },
         "overrides": []
       },
@@ -1710,12 +1710,12 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "multi"
         }
       },
       "targets": [
         {
-          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_flow_allocator_sent_bytes_total\")\n  |> filter(fn: (r) => r[\"_field\"] == \"sent_bytes_total\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> derivative(unit: 1s)\n  |> aggregateWindow(every: ${_interval}, fn: mean, createEmpty: false)\n  |> yield(name: \"last\")",
+          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_flow_allocator_sent_bytes_total\")\n  |> filter(fn: (r) => r[\"_field\"] == \"sent_bytes_total\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> map(fn: (r) => ({ r with _value: float(v: r._value) * 8.0}))\n  |> derivative(unit: 1s)\n  |> aggregateWindow(every: ${_interval}, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
           "refId": "A"
         }
       ],
@@ -1798,7 +1798,7 @@
       },
       "targets": [
         {
-          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_flow_allocator_sent_pkts_total\")\n  |> filter(fn: (r) => r[\"_field\"] == \"sent_pkts_total\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> derivative(unit: 1s)\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_flow_allocator_sent_pkts_total\")\n  |> filter(fn: (r) => r[\"_field\"] == \"sent_pkts_total\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> derivative(unit: 1s)\n  |> aggregateWindow(every: ${_interval}, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
           "refId": "A"
         }
       ],
@@ -1993,7 +1993,8 @@
             "lineWidth": 1,
             "pointSize": 2,
             "scaleDistribution": {
-              "type": "linear"
+              "log": 10,
+              "type": "log"
             },
             "showPoints": "auto",
             "spanNulls": false,
@@ -2020,7 +2021,7 @@
               }
             ]
           },
-          "unit": "binBps"
+          "unit": "bps"
         },
         "overrides": []
       },
@@ -2043,7 +2044,7 @@
       },
       "targets": [
         {
-          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_flow_allocator_recv_bytes_total\")\n  |> filter(fn: (r) => r[\"_field\"] == \"recv_bytes_total\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> derivative(unit: 1s)\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_flow_allocator_recv_bytes_total\")\n  |> filter(fn: (r) => r[\"_field\"] == \"recv_bytes_total\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> map(fn: (r) => ({ r with _value: float(v: r._value) * 8.0}))\n  |> derivative(unit: 1s)\n  |> aggregateWindow(every: ${_interval}, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
           "refId": "A"
         }
       ],
@@ -2075,7 +2076,8 @@
             "lineWidth": 1,
             "pointSize": 2,
             "scaleDistribution": {
-              "type": "linear"
+              "log": 10,
+              "type": "log"
             },
             "showPoints": "auto",
             "spanNulls": false,
@@ -2120,12 +2122,12 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "multi"
         }
       },
       "targets": [
         {
-          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_flow_allocator_recv_pkts_total\")\n  |> filter(fn: (r) => r[\"_field\"] == \"recv_pkts_total\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> derivative(unit:1s)\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_flow_allocator_recv_pkts_total\")\n  |> filter(fn: (r) => r[\"_field\"] == \"recv_pkts_total\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> derivative(unit:1s)\n  |> aggregateWindow(every: ${_interval}, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
           "refId": "A"
         }
       ],
@@ -2304,6 +2306,332 @@
         "x": 0,
         "y": 68
       },
+      "id": 88,
+      "panels": [],
+      "title": "N+1 flow management",
+      "type": "row"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 6,
+        "x": 0,
+        "y": 69
+      },
+      "id": 83,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_flow_allocator_sent_flow_updates_total\")\n  |> filter(fn: (r) => r[\"_field\"] == \"sent_flow_updates_total\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> derivative(unit: 1s)\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+          "refId": "A"
+        }
+      ],
+      "title": "Upstream flow update rate",
+      "type": "timeseries"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 6,
+        "x": 6,
+        "y": 69
+      },
+      "id": 85,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_flow_allocator_sent_flow_updates_total\")\n  |> filter(fn: (r) => r[\"_field\"] == \"sent_flow_updates_total\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+          "refId": "A"
+        }
+      ],
+      "title": "Flow updates sent",
+      "type": "timeseries"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 6,
+        "x": 0,
+        "y": 78
+      },
+      "id": 84,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_flow_allocator_recv_flow_updates_total\")\n  |> filter(fn: (r) => r[\"_field\"] == \"recv_flow_updates_total\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> derivative(unit: 1s)\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+          "refId": "A"
+        }
+      ],
+      "title": "Downstream flow update rate",
+      "type": "timeseries"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 6,
+        "x": 6,
+        "y": 78
+      },
+      "id": 86,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_flow_allocator_recv_flow_updates_total\")\n  |> filter(fn: (r) => r[\"_field\"] == \"recv_flow_updates_total\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+          "refId": "A"
+        }
+      ],
+      "title": "Flow updates received",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 87
+      },
       "id": 10,
       "panels": [],
       "title": "Congestion avoidance",
@@ -2370,7 +2698,7 @@
         "h": 10,
         "w": 6,
         "x": 0,
-        "y": 69
+        "y": 88
       },
       "id": 12,
       "options": {
@@ -2452,7 +2780,7 @@
         "h": 10,
         "w": 6,
         "x": 6,
-        "y": 69
+        "y": 88
       },
       "id": 29,
       "options": {
@@ -2534,7 +2862,7 @@
         "h": 10,
         "w": 6,
         "x": 12,
-        "y": 69
+        "y": 88
       },
       "id": 15,
       "options": {
@@ -2616,7 +2944,7 @@
         "h": 10,
         "w": 6,
         "x": 18,
-        "y": 69
+        "y": 88
       },
       "id": 16,
       "options": {
@@ -2698,7 +3026,7 @@
         "h": 10,
         "w": 6,
         "x": 0,
-        "y": 79
+        "y": 98
       },
       "id": 14,
       "options": {
@@ -2780,7 +3108,7 @@
         "h": 10,
         "w": 6,
         "x": 6,
-        "y": 79
+        "y": 98
       },
       "id": 28,
       "options": {
@@ -2862,7 +3190,7 @@
         "h": 10,
         "w": 6,
         "x": 12,
-        "y": 79
+        "y": 98
       },
       "id": 24,
       "options": {
@@ -2944,7 +3272,7 @@
         "h": 10,
         "w": 6,
         "x": 18,
-        "y": 79
+        "y": 98
       },
       "id": 25,
       "options": {
@@ -2989,7 +3317,7 @@
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
-              "log": 2,
+              "log": 10,
               "type": "log"
             },
             "showPoints": "auto",
@@ -3017,7 +3345,7 @@
               }
             ]
           },
-          "unit": "binBps"
+          "unit": "bps"
         },
         "overrides": []
       },
@@ -3025,7 +3353,7 @@
         "h": 10,
         "w": 6,
         "x": 0,
-        "y": 89
+        "y": 108
       },
       "id": 80,
       "options": {
@@ -3035,93 +3363,12 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single"
+          "mode": "multi"
         }
       },
       "targets": [
         {
-          "query": "t1 = from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_flow_allocator_cong_wnd_size_bytes\")\n  |> filter(fn: (r) => r[\"_field\"] == \"cong_wnd_size_bytes\")\n\nt2 = from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_flow_allocator_cong_wnd_width_ns\")\n  |> filter(fn: (r) => r[\"_field\"] == \"cong_wnd_width_ns\")\n\njoin(tables: {t1: t1, t2: t2}, on: [\"_time\", \"ipcp\", \"flow_id\", \"layer\", \"system\"])\n  |> map(fn: (r) => ({ r with _value: float(v: r._value_t1) / float(v: r._value_t2) * 1000000000.0}))\n  |> drop(columns: [\"_value_t1\", \"_value_t2\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
-          "refId": "A"
-        }
-      ],
-      "title": "Target Bandwidth",
-      "type": "timeseries"
-    },
-    {
-      "datasource": null,
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "log": 2,
-              "type": "log"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "displayName": "${__field.labels.ipcp}, ${__field.labels.flow_id}",
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "binbps"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 10,
-        "w": 6,
-        "x": 6,
-        "y": 89
-      },
-      "id": 81,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "single"
-        }
-      },
-      "targets": [
-        {
-          "query": "t1 = from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_flow_allocator_cong_wnd_size_bytes\")\n  |> filter(fn: (r) => r[\"_field\"] == \"cong_wnd_size_bytes\")\n\nt2 = from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_flow_allocator_cong_wnd_width_ns\")\n  |> filter(fn: (r) => r[\"_field\"] == \"cong_wnd_width_ns\")\n\njoin(tables: {t1: t1, t2: t2}, on: [\"_time\", \"ipcp\", \"flow_id\", \"layer\", \"system\"])\n  |> map(fn: (r) => ({ r with _value: float(v: r._value_t1) / float(v: r._value_t2) * 8000000000.0}))\n  |> drop(columns: [\"_value_t1\", \"_value_t2\"])\n  |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+          "query": "t1 = from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_flow_allocator_cong_wnd_size_bytes\")\n  |> filter(fn: (r) => r[\"_field\"] == \"cong_wnd_size_bytes\")\n\nt2 = from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_flow_allocator_cong_wnd_width_ns\")\n  |> filter(fn: (r) => r[\"_field\"] == \"cong_wnd_width_ns\")\n\njoin(tables: {t1: t1, t2: t2}, on: [\"_time\", \"ipcp\", \"flow_id\", \"layer\", \"system\"])\n  |> map(fn: (r) => ({ r with _value: float(v: r._value_t1) / float(v: r._value_t2) * 1000000000.0}))\n  |> drop(columns: [\"_value_t1\", \"_value_t2\"])\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> map(fn: (r) => ({ r with _value: float(v: r._value) * 8.0}))\n  |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
           "refId": "A"
         }
       ],
@@ -3135,7 +3382,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 99
+        "y": 118
       },
       "id": 39,
       "panels": [],
@@ -3202,7 +3449,7 @@
         "h": 11,
         "w": 6,
         "x": 0,
-        "y": 100
+        "y": 119
       },
       "id": 45,
       "options": {
@@ -3284,7 +3531,7 @@
         "h": 11,
         "w": 6,
         "x": 6,
-        "y": 100
+        "y": 119
       },
       "id": 46,
       "options": {
@@ -3365,7 +3612,7 @@
         "h": 11,
         "w": 6,
         "x": 12,
-        "y": 100
+        "y": 119
       },
       "id": 47,
       "options": {
@@ -3445,7 +3692,7 @@
         "h": 11,
         "w": 6,
         "x": 18,
-        "y": 100
+        "y": 119
       },
       "id": 44,
       "options": {
@@ -3525,7 +3772,7 @@
         "h": 11,
         "w": 6,
         "x": 0,
-        "y": 111
+        "y": 130
       },
       "id": 41,
       "options": {
@@ -3605,7 +3852,7 @@
         "h": 11,
         "w": 6,
         "x": 6,
-        "y": 111
+        "y": 130
       },
       "id": 50,
       "options": {
@@ -3685,7 +3932,7 @@
         "h": 11,
         "w": 6,
         "x": 12,
-        "y": 111
+        "y": 130
       },
       "id": 51,
       "options": {
@@ -3765,7 +4012,7 @@
         "h": 11,
         "w": 6,
         "x": 18,
-        "y": 111
+        "y": 130
       },
       "id": 48,
       "options": {
@@ -3845,9 +4092,9 @@
         "h": 11,
         "w": 6,
         "x": 0,
-        "y": 122
+        "y": 141
       },
-      "id": 53,
+      "id": 49,
       "options": {
         "legend": {
           "calcs": [],
@@ -3860,7 +4107,7 @@
       },
       "targets": [
         {
-          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_data_transfer_sent_bytes_total\")\n  |> filter(fn: (r) => r[\"endpoint\"] == \"flow-allocator\")\n  |> filter(fn: (r) => r[\"qos_cube\"] == \"QoS cube 0\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> derivative(unit: 1s)\n  |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_data_transfer_local_recv_bytes_total\")\n  |> filter(fn: (r) => r[\"endpoint\"] == \"flow-allocator\")\n  |> filter(fn: (r) => r[\"qos_cube\"] == \"QoS cube 0\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> derivative(unit: 1s)\n  |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
           "refId": "A"
         }
       ],
@@ -3877,7 +4124,6 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
-            "axisSoftMin": 0,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 0,
@@ -3926,9 +4172,9 @@
         "h": 11,
         "w": 6,
         "x": 6,
-        "y": 122
+        "y": 141
       },
-      "id": 54,
+      "id": 42,
       "options": {
         "legend": {
           "calcs": [],
@@ -3941,7 +4187,7 @@
       },
       "targets": [
         {
-          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_data_transfer_sent_packets_total\")\n  |> filter(fn: (r) => r[\"endpoint\"] == \"flow-allocator\")\n  |> filter(fn: (r) => r[\"qos_cube\"] == \"QoS cube 0\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> derivative(unit: 1s)\n  |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_data_transfer_local_recv_packets_total\")\n  |> filter(fn: (r) => r[\"endpoint\"] == \"flow-allocator\")\n  |> filter(fn: (r) => r[\"qos_cube\"] == \"QoS cube 0\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> derivative(unit: 1s)\n  |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
           "refId": "A"
         }
       ],
@@ -4006,9 +4252,9 @@
         "h": 11,
         "w": 6,
         "x": 12,
-        "y": 122
+        "y": 141
       },
-      "id": 55,
+      "id": 43,
       "options": {
         "legend": {
           "calcs": [],
@@ -4021,7 +4267,7 @@
       },
       "targets": [
         {
-          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_data_transfer_sent_bytes_total\")\n  |> filter(fn: (r) => r[\"endpoint\"] == \"flow-allocator\")\n  |> filter(fn: (r) => r[\"qos_cube\"] == \"QoS cube 0\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_data_transfer_local_recv_bytes_total\")\n  |> filter(fn: (r) => r[\"endpoint\"] == \"flow-allocator\")\n  |> filter(fn: (r) => r[\"qos_cube\"] == \"QoS cube 0\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
           "refId": "A"
         }
       ],
@@ -4086,9 +4332,9 @@
         "h": 11,
         "w": 6,
         "x": 18,
-        "y": 122
+        "y": 141
       },
-      "id": 52,
+      "id": 56,
       "options": {
         "legend": {
           "calcs": [],
@@ -4101,7 +4347,7 @@
       },
       "targets": [
         {
-          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_data_transfer_sent_packets_total\")\n  |> filter(fn: (r) => r[\"endpoint\"] == \"flow-allocator\")\n  |> filter(fn: (r) => r[\"qos_cube\"] == \"QoS cube 0\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_data_transfer_local_recv_packets_total\")\n  |> filter(fn: (r) => r[\"endpoint\"] == \"flow-allocator\")\n  |> filter(fn: (r) => r[\"qos_cube\"] == \"QoS cube 0\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
           "refId": "A"
         }
       ],
@@ -4166,9 +4412,9 @@
         "h": 11,
         "w": 6,
         "x": 0,
-        "y": 133
+        "y": 152
       },
-      "id": 49,
+      "id": 53,
       "options": {
         "legend": {
           "calcs": [],
@@ -4181,7 +4427,7 @@
       },
       "targets": [
         {
-          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_data_transfer_local_recv_bytes_total\")\n  |> filter(fn: (r) => r[\"endpoint\"] == \"flow-allocator\")\n  |> filter(fn: (r) => r[\"qos_cube\"] == \"QoS cube 0\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> derivative(unit: 1s)\n  |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_data_transfer_sent_bytes_total\")\n  |> filter(fn: (r) => r[\"endpoint\"] == \"flow-allocator\")\n  |> filter(fn: (r) => r[\"qos_cube\"] == \"QoS cube 0\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> derivative(unit: 1s)\n  |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
           "refId": "A"
         }
       ],
@@ -4198,6 +4444,7 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMin": 0,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 0,
@@ -4246,9 +4493,9 @@
         "h": 11,
         "w": 6,
         "x": 6,
-        "y": 133
+        "y": 152
       },
-      "id": 42,
+      "id": 54,
       "options": {
         "legend": {
           "calcs": [],
@@ -4261,7 +4508,7 @@
       },
       "targets": [
         {
-          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_data_transfer_local_recv_packets_total\")\n  |> filter(fn: (r) => r[\"endpoint\"] == \"flow-allocator\")\n  |> filter(fn: (r) => r[\"qos_cube\"] == \"QoS cube 0\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> derivative(unit: 1s)\n  |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_data_transfer_sent_packets_total\")\n  |> filter(fn: (r) => r[\"endpoint\"] == \"flow-allocator\")\n  |> filter(fn: (r) => r[\"qos_cube\"] == \"QoS cube 0\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> derivative(unit: 1s)\n  |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
           "refId": "A"
         }
       ],
@@ -4326,9 +4573,9 @@
         "h": 11,
         "w": 6,
         "x": 12,
-        "y": 133
+        "y": 152
       },
-      "id": 43,
+      "id": 55,
       "options": {
         "legend": {
           "calcs": [],
@@ -4341,7 +4588,7 @@
       },
       "targets": [
         {
-          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_data_transfer_local_recv_bytes_total\")\n  |> filter(fn: (r) => r[\"endpoint\"] == \"flow-allocator\")\n  |> filter(fn: (r) => r[\"qos_cube\"] == \"QoS cube 0\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_data_transfer_sent_bytes_total\")\n  |> filter(fn: (r) => r[\"endpoint\"] == \"flow-allocator\")\n  |> filter(fn: (r) => r[\"qos_cube\"] == \"QoS cube 0\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
           "refId": "A"
         }
       ],
@@ -4406,9 +4653,9 @@
         "h": 11,
         "w": 6,
         "x": 18,
-        "y": 133
+        "y": 152
       },
-      "id": 56,
+      "id": 52,
       "options": {
         "legend": {
           "calcs": [],
@@ -4421,7 +4668,7 @@
       },
       "targets": [
         {
-          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_data_transfer_local_recv_packets_total\")\n  |> filter(fn: (r) => r[\"endpoint\"] == \"flow-allocator\")\n  |> filter(fn: (r) => r[\"qos_cube\"] == \"QoS cube 0\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_data_transfer_sent_packets_total\")\n  |> filter(fn: (r) => r[\"endpoint\"] == \"flow-allocator\")\n  |> filter(fn: (r) => r[\"qos_cube\"] == \"QoS cube 0\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
           "refId": "A"
         }
       ],
@@ -4429,7 +4676,7 @@
       "type": "timeseries"
     }
   ],
-  "refresh": "10s",
+  "refresh": false,
   "schemaVersion": 30,
   "style": "dark",
   "tags": [],
@@ -4447,7 +4694,7 @@
           ]
         },
         "datasource": null,
-        "definition": "import \"influxdata/influxdb/v1\"\n\nv1.tagValues(\n  bucket: \"ouroboros-metrics\",\n  tag: \"system\",\n  predicate: (r) => true,\n  start: -30d\n)\n  \n",
+        "definition": "import \"influxdata/influxdb/v1\"\n\nv1.tagValues(\n  bucket: \"ouroboros-metrics\",\n  tag: \"system\",\n  predicate: (r) => true,\n  start: -5d\n)\n  \n",
         "description": null,
         "error": null,
         "hide": 0,
@@ -4456,7 +4703,7 @@
         "multi": true,
         "name": "_system",
         "options": [],
-        "query": "import \"influxdata/influxdb/v1\"\n\nv1.tagValues(\n  bucket: \"ouroboros-metrics\",\n  tag: \"system\",\n  predicate: (r) => true,\n  start: -30d\n)\n  \n",
+        "query": "import \"influxdata/influxdb/v1\"\n\nv1.tagValues(\n  bucket: \"ouroboros-metrics\",\n  tag: \"system\",\n  predicate: (r) => true,\n  start: -5d\n)\n  \n",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -4669,5 +4916,5 @@
   "timezone": "",
   "title": "Ouroboros General Dashboard",
   "uid": "hbIO3HR7z",
-  "version": 98
+  "version": 119
 }
