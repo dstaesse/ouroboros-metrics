@@ -892,7 +892,9 @@ if __name__ == '__main__':
     argparser = argparse.ArgumentParser(description="Ouroboros InfluxDB metrics exporter")
     argparser.add_argument('-i', '--interval', type=int, default='1000',
                            help="Interval at which to collect metrics (milliseconds)")
+    argparser.add_argument('-b', '--bucket', type=str, default='ouroboros-metrics',
+                           help="InfluxDB bucket to write to")
     args = argparser.parse_args()
     interval_ms = args.interval
-    exporter = OuroborosExporter()
+    exporter = OuroborosExporter(bucket=args.bucket)
     exporter.run(interval_ms=interval_ms)
