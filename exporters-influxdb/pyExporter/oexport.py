@@ -353,6 +353,7 @@ class OuroborosRIBReader:
             'Receiver right window edge': 'rcv_rwe',
             'Receiver inactive (ns)': 'rcv_inact',
             'Receiver last ack': 'rcv_seqno',
+            'Number of pkt retransmissions': 'n_rxm',
         }
 
         ret = dict()
