@@ -327,6 +327,8 @@ class OuroborosRIBReader:
             for line in f.readlines():
                 split_line = line.split(':')
                 phrase = split_line[0]
+                if phrase not in str_to_metric:
+                    continue
                 metric = str_to_metric[phrase]
                 if metric is not None:
                     value = self._get_trailing_number(split_line[1])
@@ -354,6 +356,10 @@ class OuroborosRIBReader:
             'Receiver inactive (ns)': 'rcv_inact',
             'Receiver last ack': 'rcv_seqno',
             'Number of pkt retransmissions': 'n_rxm',
+            'Number of duplicates received': 'n_dup',
+            'Number of rendez-vous sent': 'n_rdv',
+            'Number of packets out of window': 'n_out',
+            'Number of packets out of rqueue': 'n_rqo'
         }
 
         ret = dict()
@@ -369,6 +375,8 @@ class OuroborosRIBReader:
             for line in f.readlines():
                 split_line = line.split(':')
                 phrase = split_line[0]
+                if phrase not in str_to_metric:
+                    continue
                 metric = str_to_metric[phrase]
                 if metric is not None:
                     value = self._get_trailing_number(split_line[1])
