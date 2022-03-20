@@ -23,7 +23,7 @@
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
   "id": 1,
-  "iteration": 1647475126119,
+  "iteration": 1647766812003,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -461,11 +461,10 @@
       },
       "id": 58,
       "panels": [],
-      "title": "Process N-1 flows",
+      "title": "Retransmissions",
       "type": "row"
     },
     {
-      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -487,8 +486,7 @@
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
-              "log": 10,
-              "type": "log"
+              "type": "linear"
             },
             "showPoints": "auto",
             "spanNulls": false,
@@ -500,7 +498,6 @@
               "mode": "off"
             }
           },
-          "displayName": "${__field.labels.system}:${__field.labels.process}/${__field.labels.flow_descriptor}",
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -514,8 +511,7 @@
                 "value": 80
               }
             ]
-          },
-          "unit": "ns"
+          }
         },
         "overrides": []
       },
@@ -525,7 +521,7 @@
         "x": 0,
         "y": 17
       },
-      "id": 62,
+      "id": 90,
       "options": {
         "legend": {
           "calcs": [],
@@ -539,11 +535,15 @@
       },
       "targets": [
         {
-          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"rto_ns\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
+          "datasource": {
+            "type": "influxdb",
+            "uid": "bcmLTHg7z"
+          },
+          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"n_rxm\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)\n  |> yield(name: \"mean\")",
           "refId": "A"
         }
       ],
-      "title": "Retransmission timeout (RTO)",
+      "title": "Number of packet retransmissions",
       "type": "timeseries"
     },
     {
@@ -614,8 +614,8 @@
           "placement": "bottom"
         },
         "tooltip": {
-          "mode": "single",
-          "sort": "none"
+          "mode": "multi",
+          "sort": "desc"
         }
       },
       "targets": [
@@ -688,6 +688,88 @@
         "x": 12,
         "y": 17
       },
+      "id": 62,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"rto_ns\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
+          "refId": "A"
+        }
+      ],
+      "title": "Retransmission timeout (RTO)",
+      "type": "timeseries"
+    },
+    {
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "log": 10,
+              "type": "log"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "displayName": "${__field.labels.system}:${__field.labels.process}/${__field.labels.flow_descriptor}",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "ns"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 18,
+        "y": 17
+      },
       "id": 69,
       "options": {
         "legend": {
@@ -711,88 +793,6 @@
         }
       ],
       "title": "RTT deviation off mean ",
-      "type": "timeseries"
-    },
-    {
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 6,
-        "x": 18,
-        "y": 17
-      },
-      "id": 90,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "targets": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "bcmLTHg7z"
-          },
-          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"n_rxm\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)\n  |> yield(name: \"mean\")",
-          "refId": "A"
-        }
-      ],
-      "title": "Number of packet retransmissions",
       "type": "timeseries"
     },
     {
@@ -1470,6 +1470,7 @@
       "type": "timeseries"
     },
     {
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1529,7 +1530,7 @@
         "x": 6,
         "y": 40
       },
-      "id": 71,
+      "id": 91,
       "options": {
         "legend": {
           "calcs": [],
@@ -1543,6 +1544,10 @@
       },
       "targets": [
         {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "bcmLTHg7z"
+          },
           "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"rcv_lwe\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
           "refId": "A"
         }
@@ -1624,6 +1629,10 @@
       },
       "targets": [
         {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "bcmLTHg7z"
+          },
           "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"rcv_rwe\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
           "refId": "A"
         }
@@ -1713,12 +1722,352 @@
       "type": "timeseries"
     },
     {
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "displayName": "${__field.labels.system}:${__field.labels.process}/${__field.labels.flow_descriptor}",
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 0,
+        "y": 47
+      },
+      "id": 71,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "bcmLTHg7z"
+          },
+          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"n_dup\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
+          "refId": "A"
+        }
+      ],
+      "title": "Duplicate packets received",
+      "type": "timeseries"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "displayName": "${__field.labels.system}:${__field.labels.process}/${__field.labels.flow_descriptor}",
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 6,
+        "y": 47
+      },
+      "id": 92,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "bcmLTHg7z"
+          },
+          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"n_out\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
+          "refId": "A"
+        }
+      ],
+      "title": "Packets received outside of window",
+      "type": "timeseries"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "displayName": "${__field.labels.system}:${__field.labels.process}/${__field.labels.flow_descriptor}",
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 12,
+        "y": 47
+      },
+      "id": 93,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "bcmLTHg7z"
+          },
+          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"n_rqo\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
+          "refId": "A"
+        }
+      ],
+      "title": "Packets received outside of reorder queue",
+      "type": "timeseries"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "displayName": "${__field.labels.system}:${__field.labels.process}/${__field.labels.flow_descriptor}",
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 6,
+        "x": 18,
+        "y": 47
+      },
+      "id": 94,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "bcmLTHg7z"
+          },
+          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"n_rdv\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
+          "refId": "A"
+        }
+      ],
+      "title": "Rendez-vous packets sent",
+      "type": "timeseries"
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 47
+        "y": 54
       },
       "id": 18,
       "panels": [],
@@ -1785,7 +2134,7 @@
         "h": 10,
         "w": 6,
         "x": 0,
-        "y": 48
+        "y": 55
       },
       "id": 27,
       "options": {
@@ -1868,7 +2217,7 @@
         "h": 10,
         "w": 6,
         "x": 6,
-        "y": 48
+        "y": 55
       },
       "id": 37,
       "options": {
@@ -1950,7 +2299,7 @@
         "h": 10,
         "w": 6,
         "x": 12,
-        "y": 48
+        "y": 55
       },
       "id": 21,
       "options": {
@@ -2031,7 +2380,7 @@
         "h": 10,
         "w": 6,
         "x": 18,
-        "y": 48
+        "y": 55
       },
       "id": 20,
       "options": {
@@ -2114,7 +2463,7 @@
         "h": 10,
         "w": 6,
         "x": 0,
-        "y": 58
+        "y": 65
       },
       "id": 23,
       "options": {
@@ -2197,7 +2546,7 @@
         "h": 10,
         "w": 6,
         "x": 6,
-        "y": 58
+        "y": 65
       },
       "id": 36,
       "options": {
@@ -2279,7 +2628,7 @@
         "h": 10,
         "w": 6,
         "x": 12,
-        "y": 58
+        "y": 65
       },
       "id": 26,
       "options": {
@@ -2360,7 +2709,7 @@
         "h": 10,
         "w": 6,
         "x": 18,
-        "y": 58
+        "y": 65
       },
       "id": 22,
       "options": {
@@ -2389,7 +2738,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 68
+        "y": 75
       },
       "id": 88,
       "panels": [],
@@ -2451,7 +2800,7 @@
         "h": 9,
         "w": 6,
         "x": 0,
-        "y": 69
+        "y": 76
       },
       "id": 83,
       "options": {
@@ -2529,7 +2878,7 @@
         "h": 9,
         "w": 6,
         "x": 6,
-        "y": 69
+        "y": 76
       },
       "id": 85,
       "options": {
@@ -2607,7 +2956,7 @@
         "h": 9,
         "w": 6,
         "x": 0,
-        "y": 78
+        "y": 85
       },
       "id": 84,
       "options": {
@@ -2685,7 +3034,7 @@
         "h": 9,
         "w": 6,
         "x": 6,
-        "y": 78
+        "y": 85
       },
       "id": 86,
       "options": {
@@ -2714,11 +3063,11 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 87
+        "y": 94
       },
       "id": 10,
       "panels": [],
-      "title": "Congestion avoidance",
+      "title": "IPCP Congestion avoidance",
       "type": "row"
     },
     {
@@ -2781,7 +3130,7 @@
         "h": 10,
         "w": 6,
         "x": 0,
-        "y": 88
+        "y": 95
       },
       "id": 12,
       "options": {
@@ -2863,7 +3212,7 @@
         "h": 10,
         "w": 6,
         "x": 6,
-        "y": 88
+        "y": 95
       },
       "id": 29,
       "options": {
@@ -2945,7 +3294,7 @@
         "h": 10,
         "w": 6,
         "x": 12,
-        "y": 88
+        "y": 95
       },
       "id": 15,
       "options": {
@@ -3027,7 +3376,7 @@
         "h": 10,
         "w": 6,
         "x": 18,
-        "y": 88
+        "y": 95
       },
       "id": 16,
       "options": {
@@ -3109,7 +3458,7 @@
         "h": 10,
         "w": 6,
         "x": 0,
-        "y": 98
+        "y": 105
       },
       "id": 14,
       "options": {
@@ -3191,7 +3540,7 @@
         "h": 10,
         "w": 6,
         "x": 6,
-        "y": 98
+        "y": 105
       },
       "id": 28,
       "options": {
@@ -3273,7 +3622,7 @@
         "h": 10,
         "w": 6,
         "x": 12,
-        "y": 98
+        "y": 105
       },
       "id": 24,
       "options": {
@@ -3355,7 +3704,7 @@
         "h": 10,
         "w": 6,
         "x": 18,
-        "y": 98
+        "y": 105
       },
       "id": 25,
       "options": {
@@ -3436,7 +3785,7 @@
         "h": 10,
         "w": 6,
         "x": 0,
-        "y": 108
+        "y": 115
       },
       "id": 80,
       "options": {
@@ -3465,11 +3814,11 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 118
+        "y": 125
       },
       "id": 39,
       "panels": [],
-      "title": "Data Transfer Local Components",
+      "title": "IPCP Data Transfer - Local Components",
       "type": "row"
     },
     {
@@ -3531,7 +3880,7 @@
         "h": 11,
         "w": 6,
         "x": 0,
-        "y": 119
+        "y": 126
       },
       "id": 45,
       "options": {
@@ -3613,7 +3962,7 @@
         "h": 11,
         "w": 6,
         "x": 6,
-        "y": 119
+        "y": 126
       },
       "id": 46,
       "options": {
@@ -3694,7 +4043,7 @@
         "h": 11,
         "w": 6,
         "x": 12,
-        "y": 119
+        "y": 126
       },
       "id": 47,
       "options": {
@@ -3774,7 +4123,7 @@
         "h": 11,
         "w": 6,
         "x": 18,
-        "y": 119
+        "y": 126
       },
       "id": 44,
       "options": {
@@ -3854,7 +4203,7 @@
         "h": 11,
         "w": 6,
         "x": 0,
-        "y": 130
+        "y": 137
       },
       "id": 41,
       "options": {
@@ -3934,7 +4283,7 @@
         "h": 11,
         "w": 6,
         "x": 6,
-        "y": 130
+        "y": 137
       },
       "id": 50,
       "options": {
@@ -4014,7 +4363,7 @@
         "h": 11,
         "w": 6,
         "x": 12,
-        "y": 130
+        "y": 137
       },
       "id": 51,
       "options": {
@@ -4094,7 +4443,7 @@
         "h": 11,
         "w": 6,
         "x": 18,
-        "y": 130
+        "y": 137
       },
       "id": 48,
       "options": {
@@ -4174,7 +4523,7 @@
         "h": 11,
         "w": 6,
         "x": 0,
-        "y": 141
+        "y": 148
       },
       "id": 49,
       "options": {
@@ -4254,7 +4603,7 @@
         "h": 11,
         "w": 6,
         "x": 6,
-        "y": 141
+        "y": 148
       },
       "id": 42,
       "options": {
@@ -4334,7 +4683,7 @@
         "h": 11,
         "w": 6,
         "x": 12,
-        "y": 141
+        "y": 148
       },
       "id": 43,
       "options": {
@@ -4414,7 +4763,7 @@
         "h": 11,
         "w": 6,
         "x": 18,
-        "y": 141
+        "y": 148
       },
       "id": 56,
       "options": {
@@ -4494,7 +4843,7 @@
         "h": 11,
         "w": 6,
         "x": 0,
-        "y": 152
+        "y": 159
       },
       "id": 53,
       "options": {
@@ -4575,7 +4924,7 @@
         "h": 11,
         "w": 6,
         "x": 6,
-        "y": 152
+        "y": 159
       },
       "id": 54,
       "options": {
@@ -4655,7 +5004,7 @@
         "h": 11,
         "w": 6,
         "x": 12,
-        "y": 152
+        "y": 159
       },
       "id": 55,
       "options": {
@@ -4735,7 +5084,7 @@
         "h": 11,
         "w": 6,
         "x": 18,
-        "y": 152
+        "y": 159
       },
       "id": 52,
       "options": {
@@ -4981,6 +5330,6 @@
   "timezone": "",
   "title": "Ouroboros General Dashboard",
   "uid": "hbIO3HR7z",
-  "version": 120,
+  "version": 124,
   "weekStart": ""
 }
