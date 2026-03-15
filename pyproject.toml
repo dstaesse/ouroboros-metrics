@@ -1,0 +1,16 @@
+[project]
+name = "ouroboros-metrics"
+dynamic = ["version"]
+dependencies = [
+    "influxdb-client[ciso]",
+    "pytz",
+]
+
+[tool.setuptools]
+script-files = ["oexport.py"]
+
+[build-system]
+requires = ["setuptools>=64", "setuptools_scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]

@@ -10,13 +10,7 @@ More features will be added over time.
 
 ## Requirements:
 
-InfluxDB 0SS 2.0, https://docs.influxdata.com/influxdb/v2.0/
-
-python influxdb-client, install via
-
-```
-pip install 'influxdb-client[ciso]'
-```
+InfluxDB OSS 2.0, https://docs.influxdata.com/influxdb/v2.0/
 
 ## Optional requirements:
 
@@ -45,14 +39,22 @@ select Dashboards -> Manage -> Import
 
 and then either upload the json file from this repository in
 
-dashboards-grafana/general.json
+dashboards/general.json
 
 or copy the contents of that file to the "Import via panel json"
 textbox and click "Load".
 
 ## Run the exporter:
 
-Clone this repository and go to the pyExporter directory.
+Clone this repository.
+
+Create and activate a virtual environment and install the dependencies:
+
+```
+python -m venv venv
+source venv/bin/activate
+pip install .
+```
 
 Edit the config.ini.example file and fill out the InfluxDB
 information (token, org). Save it as config.ini.
@@ -60,6 +62,5 @@ information (token, org). Save it as config.ini.
 and run oexport.py
 
 ```
-cd exporters-influxdb/pyExporter/
 python oexport.py
 ```
