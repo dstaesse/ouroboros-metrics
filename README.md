@@ -3,14 +3,21 @@
 A collection of observability tools for exporting and
 visualising metrics collected from Ouroboros.
 
-Currently has one very simple exporter for InfluxDB, and provides
-additional visualization via grafana.
+Currently has one very simple exporter that can push metrics to
+InfluxDB or write them as InfluxDB line protocol to a local file,
+and provides additional visualization via grafana.
 
 More features will be added over time.
 
 ## Requirements:
 
+The influxdb-client Python package is always required (used for
+point construction and line protocol serialization in both modes).
+It is installed automatically via `pip install .`
+
 InfluxDB OSS 2.0, https://docs.influxdata.com/influxdb/v2.0/
+(only required when pushing metrics directly to InfluxDB, not
+needed for file mode)
 
 ## Optional requirements:
 
@@ -56,11 +63,73 @@ source venv/bin/activate
 pip install .
 ```
 
+### InfluxDB mode (default)
+
 Edit the config.ini.example file and fill out the InfluxDB
 information (token, org). Save it as config.ini.
 
-and run oexport.py
+Run oexport.py:
 
 ```
 python oexport.py
 ```
+
+Extra tags can be added to every metric:
+
+```
+python oexport.py --tag env=production --tag region=eu
+```
+
+### File mode
+
+Write metrics as InfluxDB line protocol to a local file instead of
+pushing to a running InfluxDB instance. This requires no InfluxDB
+connection and no config.ini:
+
+```
+python oexport.py --output-file metrics.lp
+```
+
+Tags can be injected in file mode as well, which is useful for
+stamping metrics with a test name and run identifier:
+
+```
+python oexport.py --output-file metrics.lp \
+    --tag test=oping_unimpaired \
+    --tag run=20260401_143022
+```
+
+The resulting file can be bulk-imported into InfluxDB later:
+
+```
+influx write --bucket ouroboros-metrics --file metrics.lp
+```
+
+### CLI options
+
+| Flag                | Description                                     |
+|---------------------|-------------------------------------------------|
+| `-i, --interval`    | Collection interval in milliseconds (default: 1000) |
+| `-b, --bucket`      | InfluxDB bucket name (default: ouroboros-metrics) |
+| `-o, --output-file` | Write line protocol to file instead of InfluxDB |
+| `-t, --tag`         | Extra tag as key=value (repeatable)             |
+| `-c, --config`      | Path to config.ini (default: ./config.ini)      |
+| `--url`             | InfluxDB server URL                             |
+| `--org`             | InfluxDB organization                           |
+| `--token`           | InfluxDB authentication token                   |
+
+### Config file
+
+All settings can also be specified in config.ini. CLI flags take
+precedence over config file values. See config.ini.example for
+details.
+
+| Section      | Key        | Equivalent CLI flag |
+|--------------|------------|---------------------|
+| `[influx2]`  | `url`      | `--url`             |
+| `[influx2]`  | `org`      | `--org`             |
+| `[influx2]`  | `token`    | `--token`           |
+| `[exporter]` | `interval` | `--interval`        |
+| `[exporter]` | `bucket`   | `--bucket`          |
+| `[output]`   | `file`     | `--output-file`     |
+| `[output]`   | `tags`     | `--tag`             |

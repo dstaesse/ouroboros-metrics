@@ -4,3 +4,15 @@ org=<your-org>
 token=<your-token>
 timeout=6000
 verify_ssl=False
+
+[exporter]
+; Collection interval in milliseconds (default: 1000)
+;interval = 1000
+; InfluxDB bucket name (default: ouroboros-metrics)
+;bucket = ouroboros-metrics
+
+[output]
+; Uncomment to write line protocol to file instead of InfluxDB
+;file = /path/to/metrics.lp
+; Extra tags added to every point (comma-separated key=value pairs)
+;tags = test=mytest,run=12345

@@ -2,3 +2,6 @@
 *#
 ./config.ini
 ./venv/
+__pycache__/
+*.egg-info/
+.vscode/

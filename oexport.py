@@ -33,566 +33,50 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
 import os
-import re
 import socket
+import sys
 import time
 import argparse
+import configparser
+from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Optional
 
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import WriteOptions, PointSettings
 from influxdb_client.rest import ApiException
 from pytz import utc
 
-IPCP_TYPE_UNICAST = 'unicast'
-IPCP_TYPE_BROADCAST = 'broadcast'
-IPCP_TYPE_UDP = 'udp'
-IPCP_TYPE_ETH_DIX = 'eth-dix'
-IPCP_TYPE_ETH_LLC = 'eth-llc'
-IPCP_TYPE_LOCAL = 'local'
-IPCP_TYPE_UNKNOWN = 'unknown'
+from ribreader import OuroborosRIBReader, IPCP_TYPES
 
-IPCP_TYPES = [IPCP_TYPE_UNICAST,
-              IPCP_TYPE_BROADCAST,
-              IPCP_TYPE_UDP,
-              IPCP_TYPE_ETH_DIX,
-              IPCP_TYPE_ETH_LLC,
-              IPCP_TYPE_LOCAL,
-              IPCP_TYPE_UNKNOWN]
 
-IPCP_STATE_NULL = 'null'
-IPCP_STATE_INIT = 'init'
-IPCP_STATE_OPERATIONAL = 'operational'
-IPCP_STATE_SHUTDOWN = 'shutdown'
+class MetricsWriter(ABC):
+    """Abstract base class for metrics output writers."""
 
-IPCP_STATES = [IPCP_STATE_NULL,
-               IPCP_STATE_INIT,
-               IPCP_STATE_OPERATIONAL,
-               IPCP_STATE_SHUTDOWN]
+    @abstractmethod
+    def write(self, bucket: str, record: Point):
+        """Write a single metric point."""
 
+    @abstractmethod
+    def close(self):
+        """Release resources held by the writer."""
 
-class OuroborosRIBReader:
-    """
-    Class for reading stuff from the Ouroboros system
-    Resource Information Base (RIB)
-    """
-    def __init__(self,
-                 rib_path: str):
 
-        self.rib_path = rib_path
+class InfluxDBWriter(MetricsWriter):
+    """Write metrics to an InfluxDB instance."""
 
-    def _get_dir_for_ipcp(self,
-                          ipcp_name: str) -> str:
-
-        return os.path.join(self.rib_path, ipcp_name)
-
-    def _get_dir_for_process(self,
-                             process_name: str) -> str:
-
-        return os.path.join(self.rib_path, process_name)
-
-    def _get_dt_dir_for_ipcp(self,
-                             ipcp_name: str) -> Optional[str]:
-
-        path = self._get_dir_for_ipcp(ipcp_name)
-        try:
-            _subdirs = [f.name for f in os.scandir(path)]
-        except IOError as _:
-            return None
-
-        for _dir in _subdirs:
-            if len(_dir) > 3 and _dir[:3] == 'dt.':
-                return os.path.join(path, _dir)
-
-        return None
-
-    def _get_path_for_ipcp_flow_n_plus_1_info(self,
-                                              ipcp_name: str,
-                                              fd: str):
-
-        return os.path.join(self.rib_path, ipcp_name, 'flow-allocator', fd)
-
-    def _get_path_for_ipcp_flow_n_minus_1_info(self,
-                                               ipcp_name: str,
-                                               fd: str) -> str:
-
-        dt_dir = self._get_dt_dir_for_ipcp(ipcp_name)
-        return os.path.join(dt_dir, fd)
-
-    def _get_path_for_frct_flow_info(self,
-                                     process: str,
-                                     fd: str) -> str:
-
-        process_dir = self._get_dir_for_process(process)
-        return os.path.join(process_dir, str(fd), 'frct')
-
-    def _get_ipcp_type_for_ipcp(self,
-                                ipcp_name: str) -> str:
-
-        _dir = self._get_dir_for_ipcp(ipcp_name)
-        path = '{}/info/_type'.format(_dir)
-        if not os.path.exists(path):
-            return IPCP_TYPE_UNKNOWN
-
-        try:
-            with open(path) as f:
-                return f.readline()[:-1]
-        except IOError as _:
-            return IPCP_TYPE_UNKNOWN
-
-    def _get_layer_name_for_ipcp(self,
-                                 ipcp_name: str) -> str:
-
-        _dir = self._get_dir_for_ipcp(ipcp_name)
-        path = '{}/info/_layer'.format(_dir)
-        if not os.path.exists(path):
-            return '(error)'
-
-        try:
-            with open(path) as f:
-                return f.readline()[:-1]
-        except IOError as _:
-            return '(error)'
-
-    def _get_ipcp_state_for_ipcp(self,
-                                 ipcp_name: str) -> str:
-
-        _dir = self._get_dir_for_ipcp(ipcp_name)
-        path = '{}/info/_state'.format(_dir)
-        if not os.path.exists(path):
-            return IPCP_TYPE_UNKNOWN
-
-        try:
-            with open(path) as f:
-                return f.readline()[:-1]
-        except IOError as e:
-            print(e)
-            return IPCP_TYPE_UNKNOWN
-
-    def _get_n_plus_1_flows_for_ipcp(self,
-                                     ipcp_name: str) -> list[str]:
-
-        path = os.path.join(self._get_dir_for_ipcp(ipcp_name), 'flow-allocator')
-
-        if not os.path.exists(path):
-            return []
-
-        try:
-            return [f.name for f in os.scandir(path)]
-        except IOError as e:
-            print(e)
-
-        return []
-
-    def _get_n_minus_1_flows_for_ipcp(self,
-                                      ipcp_name: str) -> list[str]:
-
-        path = self._get_dt_dir_for_ipcp(ipcp_name)
-        if path is None:
-            return []
-
-        if not os.path.exists(path):
-            return []
-
-        try:
-            return [f.name for f in os.scandir(path)]
-        except IOError as e:
-            print(e)
-            return []
-
-    def _get_address_for_ipcp(self,
-                              ipcp_name):
-
-        path = self._get_dir_for_ipcp(ipcp_name)
-        try:
-            _subdirs = [f.name for f in os.scandir(path)]
-        except IOError as _:
-            return None
-
-        for _dir in _subdirs:
-            if len(_dir) > 3 and _dir[:3] == 'dt.':
-                return _dir[3:]
-
-        return None
-
-    def get_lsdb_stats_for_ipcp(self,
-                                ipcp_name: str) -> dict:
-        """
-        Get statistics for the link state database of an IPCP
-        :param ipcp_name: name of the IPCP
-        :return: statistics in a dict
-        """
-
-        address = self._get_address_for_ipcp(ipcp_name)
-        if address is None:
-            return {}
-
-        path = os.path.join(self._get_dir_for_ipcp(ipcp_name), 'lsdb/')
-        if not os.path.exists(path):
-            return {}
-
-        nodes = []
-        neighbors = 0
-        links = 0
-
-        lsdb_entries = []
-        try:
-            lsdb_entries = [f.path for f in os.scandir(path)]
-        except IOError as _:
-            pass
-
-        for lsdb_entry in lsdb_entries:
-            try:
-                with open(lsdb_entry) as e:
-                    for line in e.readlines():
-                        if 'src' in line:
-                            src = line.split()[-1]
-                            if src not in nodes:
-                                nodes += [src]
-                            if src == address:
-                                neighbors += 1
-                        if 'dst' in line:
-                            dst = line.split()[-1]
-                            if dst not in nodes:
-                                nodes += [dst]
-                links += 1
-            except IOError as _:
-                continue
-
-        stats = {'neighbors': neighbors,
-                 'nodes': len(nodes),
-                 'links': links}
-
-        return stats
-
-    @staticmethod
-    def _get_trailing_number(s: str) -> int:
-        m = re.search(r'\d+$', s)
-        return int(m.group()) if m else None
-
-
-    def get_dht_stats_for_ipcp(self,
-                               ipcp_name: str) -> dict:
-        """
-        Get statistics for the DHT directory of an IPCP
-        :param ipcp_name: name of the IPCP
-        :return: statistics in a dict
-        """
-
-        str_to_metric = {
-        '  Number of keys': 'keys',
-        '  Number of local values': 'local_values',
-        '  Number of non-local values': 'non_local_values'
-        }
-
-        path = os.path.join(self._get_dir_for_ipcp(ipcp_name), 'dht/stats')
-        if not os.path.exists(path):
-            return {}
-
-        ret = dict()
-
-        with open(path) as f:
-            for line in f.readlines():
-                split_line = line.split(':')
-                phrase = split_line[0]
-                if phrase not in str_to_metric.keys():
-                    continue
-                metric = str_to_metric[phrase]
-                value = self._get_trailing_number(split_line[1])
-                ret[metric] = value
-
-        return ret
-
-    def _get_flows_for_process(self,
-                               process_name: str) -> list[str]:
-        path = self._get_dir_for_process(process_name)
-
-        if not os.path.exists(path):
-            return []
-
-        try:
-            return [f.name for f in os.scandir(path) if f.is_dir()]
-        except IOError as e:
-            print(e)
-
-        return []
-
-    def _get_flow_info_for_n_plus_1_flow(self,
-                                         ipcp_name: str,
-                                         fd: str) -> dict:
-
-        str_to_metric = {
-            #'Flow established at': None,
-            #'Remote address': None,
-            'Local endpoint ID': 'endpoint_id',
-            #'Remote endpoint ID': None,
-            'Sent (packets)': 'sent_pkts_total',
-            'Sent (bytes)': 'sent_bytes_total',
-            'Send failed (packets)': 'send_failed_packets_total',
-            'Send failed (bytes)': 'send_failed_bytes_total',
-            'Received (packets)': 'recv_pkts_total',
-            'Received (bytes)': 'recv_bytes_total',
-            'Receive failed (packets)': 'recv_failed_pkts_total',
-            'Receive failed (bytes)': 'recv_failed_bytes_total',
-            'Sent flow updates (packets)': 'sent_flow_updates_total',
-            'Received flow updates (packets)': 'recv_flow_updates_total',
-            #'Congestion avoidance algorithm': None,
-            'Upstream congestion level': 'up_cong_lvl',
-            'Downstream congestion level': 'down_cong_lvl',
-            'Upstream packet counter': 'up_pkt_ctr',
-            'Downstream packet counter': 'down_pkt_ctr',
-            'Congestion window size (ns)': 'cong_wnd_width_ns',
-            'Packets in this window': 'cong_wnd_current_pkts',
-            'Bytes in this window': 'cong_wnd_current_bytes',
-            'Max bytes in this window': 'cong_wnd_size_bytes',
-            #'Current congestion regime': None
-        }
-
-        ret = dict()
-
-        path = self._get_path_for_ipcp_flow_n_plus_1_info(ipcp_name, fd)
-
-        if not os.path.exists(path):
-            return dict()
-
-        with open(path) as f:
-            for line in f.readlines():
-                split_line = line.split(':')
-                phrase = split_line[0]
-                if phrase not in str_to_metric.keys():
-                    continue
-                metric = str_to_metric[phrase]
-                value = self._get_trailing_number(split_line[1])
-                ret[metric] = value
-
-        return ret
-
-    def _get_frct_info_for_process_flow(self,
-                                        process: str,
-                                        fd: str) -> dict:
-
-        str_to_metric = {
-            'Maximum packet lifetime (ns)': 'mpl_timer_ns',
-            'Max time to Ack (ns)': 'a_timer_ns',
-            'Max time to Retransmit (ns)': 'r_timer_ns',
-            'Smoothed rtt (ns)': 'srtt_ns',
-            'RTT standard deviation (ns)': 'mdev_ns',
-            'Retransmit timeout RTO (ns)': 'rto_ns',
-            'Sender left window edge': 'snd_lwe',
-            'Sender right window edge': 'snd_rwe',
-            'Sender inactive (ns)': 'snd_inact',
-            'Sender current sequence number': 'snd_seqno',
-            'Receiver left window edge': 'rcv_lwe',
-            'Receiver right window edge': 'rcv_rwe',
-            'Receiver inactive (ns)': 'rcv_inact',
-            'Receiver last ack': 'rcv_seqno',
-            'Number of pkt retransmissions': 'n_rxm',
-            'Number of rtt probes': 'n_prb',
-            'Number of rtt estimates': 'n_rtt',
-            'Number of duplicates received': 'n_dup',
-            'Number of delayed acks received': 'n_dak',
-            'Number of rendez-vous sent': 'n_rdv',
-            'Number of packets out of window': 'n_out',
-            'Number of packets out of rqueue': 'n_rqo'
-        }
-
-        ret = dict()
-
-        path = self._get_path_for_frct_flow_info(process, fd)
-
-        if not os.path.exists(path):
-            return dict()
-
-        ret['fd'] = fd
-
-        with open(path) as f:
-            for line in f.readlines():
-                split_line = line.split(':')
-                phrase = split_line[0]
-                if phrase not in str_to_metric.keys():
-                    continue
-                metric = str_to_metric[phrase]
-                value = self._get_trailing_number(split_line[1])
-                ret[metric] = value
-
-        return ret
-
-    def get_flow_allocator_flow_info_for_ipcp(self,
-                                              ipcp_name: str) -> list[dict]:
-        """
-        Get the flow intformation for all N+1 flows in a certain IPCP
-        :param ipcp_name: name of the IPCP
-        :return: dict with flow information
-        """
-        flow_info = []
-
-        flow_descriptors = self._get_n_plus_1_flows_for_ipcp(ipcp_name)
-        for flow in flow_descriptors:
-            info = self._get_flow_info_for_n_plus_1_flow(ipcp_name, flow)
-            flow_info += [info]
-
-        return flow_info
-
-    def _get_flow_info_for_n_minus_1_flow(self,
-                                          ipcp_name: str,
-                                          fd: str) -> dict:
-
-        ret = dict()
-
-        path = self._get_path_for_ipcp_flow_n_minus_1_info(ipcp_name, fd)
-
-        str_to_qos_metric = {
-         #'Flow established at': None,
-         ' sent (packets)': 'sent_packets_total',
-         ' sent (bytes)': 'sent_bytes_total',
-         ' rcvd (packets)': 'recv_packets_total',
-         ' rcvd (bytes)': 'recv_bytes_total',
-         ' local sent (packets)': 'local_sent_packets_total',
-         ' local sent (bytes)': 'local_sent_bytes_total',
-         ' local rcvd (packets)': 'local_recv_packets_total',
-         ' local rcvd (bytes)': 'local_recv_bytes_total',
-         ' dropped ttl (packets)': 'ttl_packets_dropped_total',
-         ' dropped ttl (bytes)': 'ttl_bytes_dropped_total',
-         ' failed writes (packets)': 'write_packets_dropped_total',
-         ' failed writes (bytes)': 'write_bytes_dropped_total',
-         ' failed nhop (packets)': 'nhop_packets_dropped_total',
-         ' failed nhop (bytes)': 'nhop_bytes_dropped_total'
-        }
-
-        if not os.path.exists(path):
-            return dict()
-
-        with open(path) as f:
-            _current_cube = ''
-            ret['fd'] = fd
-            for line in [_line for _line in f.readlines() if _line != '\n']:
-                if 'Endpoint address' in line:
-                    ret['endpoint'] = line.split(':')[-1].replace(' ', '')[:-1]
-                elif 'Queued packets (rx)' in line:
-                    ret['queued_packets_rx'] = self._get_trailing_number(line)
-                elif 'Queued packets (tx)' in line:
-                    ret['queued_packets_tx'] = self._get_trailing_number(line)
-                elif 'Qos cube' in line:
-                    _cube = self._get_trailing_number(line[:-2])
-                    _current_cube = 'QoS cube ' + str(_cube)
-                    ret[_current_cube] = dict()
-                else:
-                    split_line = line.split(':')
-                    if split_line[0] not in str_to_qos_metric.keys():
-                        continue
-                    metric = str_to_qos_metric[split_line[0]]
-                    value = self._get_trailing_number(split_line[1])
-                    ret[_current_cube][metric] = value
-
-        return ret
-
-    def get_data_transfer_flow_info_for_ipcp(self,
-                                             ipcp_name: str) -> list[dict]:
-        """
-        Get the flow information for all Data Transfer (N-1) flows in a certain IPCP
-        :param ipcp_name: name of the IPCP
-        :return: flow information for the data transfer flows
-        """
-
-        flow_info = []
-
-        flow_descriptors = self._get_n_minus_1_flows_for_ipcp(ipcp_name)
-        for flow in flow_descriptors:
-            info = self._get_flow_info_for_n_minus_1_flow(ipcp_name, flow)
-            flow_info += [info]
-
-        return flow_info
-
-    def get_frct_info_for_process(self,
-                                  process_name: str) -> list[dict]:
-        """
-        Get the frct information for all flows for a certain process
-        :param process_name: name of the process
-        :return: flow information for the N-1 flows
-        """
-
-        frct_info = []
-
-        flow_descriptors = self._get_flows_for_process(process_name)
-
-        for flow in flow_descriptors:
-            info = self._get_frct_info_for_process_flow(process_name, flow)
-            frct_info += [info]
-
-        return frct_info
-
-    # pylint: disable-msg=too-many-arguments
-    def get_ipcp_list(self,
-                      names_only: bool = False,  # return name and layer name
-                      types: bool = True,
-                      states: bool = True,
-                      layers: bool = True,
-                      flows: bool = True) -> list[dict]:
-        """
-        Get a list of all IPCPs
-        :param names_only: only return IPCP names and layer names
-        :param types: return IPCP type
-        :param states: return IPCP state
-        :param layers: return layer in which the IPCP is enrolled
-        :param flows: return the number of allocated (N+1) flows for this IPCP
-        :return: list of dicts containing IPCP info
-        """
-
-        ipcp_list = []
-
-        if not os.path.exists(self.rib_path):
-            return []
-
-        for ipcp_dir in [f.path for f in os.scandir(self.rib_path)
-                         if f.is_dir() and not f.name.startswith('proc.')]:
-            ipcp_name = os.path.split(ipcp_dir)[-1]
-            ipcp_type = None
-            ipcp_state = None
-            ipcp_layer = self._get_layer_name_for_ipcp(ipcp_name) if layers else None
-            ipcp_flows = None
-            if not names_only:
-                ipcp_type = self._get_ipcp_type_for_ipcp(ipcp_name) if types else None
-                ipcp_state = self._get_ipcp_state_for_ipcp(ipcp_name) if states else None
-                ipcp_flows = self._get_n_plus_1_flows_for_ipcp(ipcp_name) if flows else None
-
-            ipcp_list += [{'name': ipcp_name,
-                           'type': ipcp_type,
-                           'state': ipcp_state,
-                           'layer': ipcp_layer,
-                           'flows': len(ipcp_flows) if ipcp_flows else None}]
-        return ipcp_list
-        # pylint: enable-msg=too-many-arguments
-
-    def get_process_list(self) -> list[str]:
-        """
-        Get a list of all the Ouroboros applications that may be exposing frct stats
-        :return: list of process names ("proc.<pid>")
-        """
-        proc_list = []
-
-        if not os.path.exists(self.rib_path):
-            return []
-
-        for proc in [f.name for f in os.scandir(self.rib_path)
-                     if f.is_dir() and f.name.startswith('proc.')]:
-            proc_list += [proc]
-
-        return proc_list
-
-
-class OuroborosExporter:
-    """
-    Export Ouroboros metrics to InfluxDB
-    """
-
-    def __init__(self,
-                 bucket='ouroboros-metrics',
-                 config='./config.ini',
-                 rib_path='/tmp/ouroboros/'):
+    def __init__(self,  # pylint: disable=too-many-arguments,too-many-positional-arguments
+                 cfg_path: str = './config.ini',
+                 tags: dict = None,
+                 url: str = None,
+                 org: str = None,
+                 token: str = None):
 
         point_settings = PointSettings()
         point_settings.add_default_tag('system', socket.gethostname())
+
+        if tags:
+            for key, value in tags.items():
+                point_settings.add_default_tag(key, value)
 
         write_options = WriteOptions(batch_size=500,
                                      flush_interval=10_000,
@@ -602,15 +86,60 @@ class OuroborosExporter:
                                      max_retry_delay=30_000,
                                      exponential_base=2)
 
+        if url:
+            self.client = InfluxDBClient(url=url, org=org, token=token)
+        else:
+            self.client = InfluxDBClient.from_config_file(cfg_path)
+        self._write_api = self.client.write_api(write_options=write_options,
+                                                point_settings=point_settings).write
+
+    def write(self, bucket: str, record: Point):
+        try:
+            self._write_api(bucket=bucket, record=record)
+        except ApiException as e:
+            print(e)
+
+    def close(self):
+        self.client.close()
+
+
+class FileWriter(MetricsWriter):
+    """Write metrics as InfluxDB line protocol to a file."""
+
+    def __init__(self,
+                 path: str,
+                 tags: dict = None):
+
+        self._tags = tags or {}
+        self._file = open(path, 'a', encoding='utf-8')  # pylint: disable=consider-using-with
+
+    def write(self, bucket: str, record: Point):
+        for key, value in self._tags.items():
+            record = record.tag(key, value)
+        record = record.tag('system', socket.gethostname())
+        self._file.write(record.to_line_protocol() + '\n')
+        self._file.flush()
+
+    def close(self):
+        self._file.close()
+
+
+class OuroborosExporter:
+    """
+    Export Ouroboros metrics to InfluxDB
+    """
+
+    def __init__(self,
+                 metrics_writer: MetricsWriter,
+                 bucket='ouroboros-metrics',
+                 rib_path='/tmp/ouroboros/'):
+
         self.bucket = bucket
-        self.client = InfluxDBClient.from_config_file(config)
-        self.write_api = self.client.write_api(write_options=write_options,
-                                               point_settings=point_settings).write
-        self.query_api = self.client.query_api()
+        self.writer = metrics_writer
         self.ribreader = OuroborosRIBReader(rib_path=rib_path)
 
     def __exit__(self, _type, value, traceback):
-        self.client.close()
+        self.writer.close()
 
     def _write_ouroboros_ipcps_total(self,
                                      now,
@@ -618,7 +147,7 @@ class OuroborosExporter:
                                      n_ipcps):
 
         point = {
-            'measurement': 'ouroboros_{}_ipcps_total'.format(ipcp_type),
+            'measurement': f'ouroboros_{ipcp_type}_ipcps_total',
             'tags': {
                 'type': ipcp_type,
             },
@@ -628,8 +157,8 @@ class OuroborosExporter:
             }
         }
 
-        self.write_api(bucket=self.bucket,
-                       record=Point.from_dict(point))
+        self.writer.write(bucket=self.bucket,
+                          record=Point.from_dict(point))
 
     def _write_ouroboros_flow_allocator_flows_total(self,
                                                     now,
@@ -648,10 +177,10 @@ class OuroborosExporter:
             }
         }
 
-        self.write_api(bucket=self.bucket,
-                       record=Point.from_dict(point))
+        self.writer.write(bucket=self.bucket,
+                          record=Point.from_dict(point))
 
-    # pylint: disable-msg=too-many-arguments
+    # pylint: disable-msg=too-many-arguments,too-many-positional-arguments
     def _write_ouroboros_fa_congestion_metric(self,
                                               metric: str,
                                               now: str,
@@ -661,7 +190,7 @@ class OuroborosExporter:
                                               value):
 
         point = {
-            'measurement': 'ouroboros_flow_allocator_' + metric,
+            'measurement': f'ouroboros_flow_allocator_{metric}',
             'tags': {
                 'ipcp': ipcp_name,
                 'layer': layer,
@@ -673,11 +202,8 @@ class OuroborosExporter:
             }
         }
 
-        try:
-            self.write_api(bucket=self.bucket,
-                           record=Point.from_dict(point))
-        except ApiException as e:
-            print(e, point)
+        self.writer.write(bucket=self.bucket,
+                          record=Point.from_dict(point))
 
     def _write_ouroboros_lsdb_node_metric(self,
                                           metric: str,
@@ -687,7 +213,7 @@ class OuroborosExporter:
                                           value):
 
         point = {
-            'measurement': 'ouroboros_lsdb_' + metric + '_total',
+            'measurement': f'ouroboros_lsdb_{metric}_total',
             'tags': {
                 'ipcp': ipcp_name,
                 'layer': layer
@@ -698,11 +224,8 @@ class OuroborosExporter:
             }
         }
 
-        try:
-            self.write_api(bucket=self.bucket,
-                           record=Point.from_dict(point))
-        except ApiException as e:
-            print(e, point)
+        self.writer.write(bucket=self.bucket,
+                          record=Point.from_dict(point))
 
     def _write_ouroboros_dht_node_metric(self,
                                          metric: str,
@@ -712,7 +235,7 @@ class OuroborosExporter:
                                          value):
 
         point = {
-            'measurement': 'ouroboros_dht_' + metric + '_total',
+            'measurement': f'ouroboros_dht_{metric}_total',
             'tags': {
                 'ipcp': ipcp_name,
                 'layer': layer
@@ -723,11 +246,8 @@ class OuroborosExporter:
             }
         }
 
-        try:
-            self.write_api(bucket=self.bucket,
-                           record=Point.from_dict(point))
-        except ApiException as e:
-            print(e, point)
+        self.writer.write(bucket=self.bucket,
+                          record=Point.from_dict(point))
 
     def _write_ouroboros_data_transfer_metric(self,
                                               metric: str,
@@ -740,7 +260,7 @@ class OuroborosExporter:
                                               value):
 
         point = {
-            'measurement': 'ouroboros_data_transfer_' + metric,
+            'measurement': f'ouroboros_data_transfer_{metric}',
             'tags': {
                 'ipcp': ipcp_name,
                 'layer': layer,
@@ -754,11 +274,8 @@ class OuroborosExporter:
             }
         }
 
-        try:
-            self.write_api(bucket=self.bucket,
-                           record=Point.from_dict(point))
-        except ApiException as e:
-            print(e, point)
+        self.writer.write(bucket=self.bucket,
+                          record=Point.from_dict(point))
 
     def _write_ouroboros_data_transfer_queued(self,
                                               now,
@@ -766,10 +283,10 @@ class OuroborosExporter:
                                               ipcp_name,
                                               layer,
                                               metrics) -> None:
-        point = dict()
+        point = {}
         for metric in metrics:
             point = {
-                'measurement': 'ouroboros_data_transfer_' + metric,
+                'measurement': f'ouroboros_data_transfer_{metric}',
                 'tags': {
                     'ipcp': ipcp_name,
                     'layer': layer,
@@ -781,11 +298,8 @@ class OuroborosExporter:
                 }
             }
 
-        try:
-            self.write_api(bucket=self.bucket,
-                           record=Point.from_dict(point))
-        except ApiException as e:
-            print(e, point)
+        self.writer.write(bucket=self.bucket,
+                          record=Point.from_dict(point))
 
     def _write_ouroboros_process_frct_metric(self,
                                              now,
@@ -794,7 +308,7 @@ class OuroborosExporter:
                                              process,
                                              value):
         point = {
-            'measurement': 'ouroboros_process_frct_' + metric,
+            'measurement': f'ouroboros_process_frct_{metric}',
             'tags': {
                 'process': process,
                 'flow_descriptor': fd,
@@ -805,12 +319,9 @@ class OuroborosExporter:
             }
         }
 
-        try:
-            self.write_api(bucket=self.bucket,
-                           record=Point.from_dict(point))
-        except ApiException as e:
-            print(e, point)
-    # pylint: enable-msg=too-many-arguments
+        self.writer.write(bucket=self.bucket,
+                          record=Point.from_dict(point))
+    # pylint: enable-msg=too-many-arguments,too-many-positional-arguments
 
     @staticmethod
     def _filter_ipcp_list(ipcp_list: list[dict],
@@ -819,7 +330,7 @@ class OuroborosExporter:
                           layer: str = None) -> list[dict]:
 
         if ipcp_type not in IPCP_TYPES:
-            print("Unknown IPCP TYPE: %s" % ipcp_type)
+            print(f"Unknown IPCP TYPE: {ipcp_type}")
             return []
 
         if ipcp_type:
@@ -837,7 +348,7 @@ class OuroborosExporter:
 
         ipcps = self.ribreader.get_ipcp_list()
 
-        ipcps_total = dict()
+        ipcps_total = {}
 
         for _type in IPCP_TYPES:
             ipcps_total[_type] = len(self._filter_ipcp_list(ipcps, ipcp_type=_type))
@@ -854,7 +365,8 @@ class OuroborosExporter:
         now = datetime.now(utc)
 
         for ipcp in [ipcp for ipcp in ipcps if ipcp['flows'] is not None]:
-            self._write_ouroboros_flow_allocator_flows_total(now, ipcp['name'], ipcp['layer'], ipcp['flows'])
+            self._write_ouroboros_flow_allocator_flows_total(
+                now, ipcp['name'], ipcp['layer'], ipcp['flows'])
 
     def _export_ouroboros_fa_congestion_metrics(self):
 
@@ -865,16 +377,13 @@ class OuroborosExporter:
         for ipcp in ipcps:
             flows = self.ribreader.get_flow_allocator_flow_info_for_ipcp(ipcp['name'])
             for flow in flows:
-                for metric in flow:
+                for metric, value in flow.items():
                     if metric == 'endpoint_id':
                         continue
 
-                    self._write_ouroboros_fa_congestion_metric(metric,
-                                                               str(now),
-                                                               ipcp['name'],
-                                                               flow['endpoint_id'],
-                                                               ipcp['layer'],
-                                                               flow[metric])
+                    self._write_ouroboros_fa_congestion_metric(
+                        metric, str(now), ipcp['name'],
+                        flow['endpoint_id'], ipcp['layer'], value)
 
     def _export_ouroboros_lsdb_metrics(self):
 
@@ -891,7 +400,7 @@ class OuroborosExporter:
                                                        ipcp['layer'],
                                                        value)
 
-    def _expoert_ouroboros_dht_metrics(self):
+    def _export_ouroboros_dht_metrics(self):
 
         ipcps = self.ribreader.get_ipcp_list(names_only=True)
 
@@ -917,20 +426,18 @@ class OuroborosExporter:
                 qoscubes = [_field for _field in flow if str(_field).startswith('QoS cube')]
                 for qoscube in qoscubes:
                     for metric in flow[qoscube]:
-                        self._write_ouroboros_data_transfer_metric(metric,
-                                                                   str(now),
-                                                                   qoscube,
-                                                                   flow['fd'],
-                                                                   flow['endpoint'],
-                                                                   ipcp['name'],
-                                                                   ipcp['layer'],
-                                                                   flow[qoscube][metric])
-                self._write_ouroboros_data_transfer_queued(str(now),
-                                                           flow['fd'],
-                                                           ipcp['name'],
-                                                           ipcp['layer'],
-                                                           {'queued_packets_rx': flow['queued_packets_rx'],
-                                                            'queued_packets_tx': flow['queued_packets_tx']})
+                        self._write_ouroboros_data_transfer_metric(
+                            metric, str(now), qoscube,
+                            flow['fd'], flow['endpoint'],
+                            ipcp['name'], ipcp['layer'],
+                            flow[qoscube][metric])
+                queued = {
+                    'queued_packets_rx': flow['queued_packets_rx'],
+                    'queued_packets_tx': flow['queued_packets_tx']
+                }
+                self._write_ouroboros_data_transfer_queued(
+                    str(now), flow['fd'], ipcp['name'],
+                    ipcp['layer'], queued)
 
     def _export_ouroboros_process_frct_metrics(self):
         processes = self.ribreader.get_process_list()
@@ -939,12 +446,10 @@ class OuroborosExporter:
 
         for process in processes:
             for frct_info in self.ribreader.get_frct_info_for_process(process):
-                for metric in frct_info:
-                    self._write_ouroboros_process_frct_metric(str(now),
-                                                              metric,
-                                                              frct_info['fd'],
-                                                              process,
-                                                              frct_info[metric])
+                for metric, value in frct_info.items():
+                    self._write_ouroboros_process_frct_metric(
+                        str(now), metric, frct_info['fd'],
+                        process, value)
 
     def export(self):
         """
@@ -956,7 +461,7 @@ class OuroborosExporter:
         self._export_ouroboros_flow_allocator_flows_total()
         self._export_ouroboros_fa_congestion_metrics()
         self._export_ouroboros_lsdb_metrics()
-        self._expoert_ouroboros_dht_metrics()
+        self._export_ouroboros_dht_metrics()
         self._export_ouroboros_data_transfer_metrics()
         self._export_ouroboros_process_frct_metrics()
 
@@ -975,12 +480,78 @@ class OuroborosExporter:
 
 
 if __name__ == '__main__':
-    argparser = argparse.ArgumentParser(description="Ouroboros InfluxDB metrics exporter")
+    argparser = argparse.ArgumentParser(description="Ouroboros metrics exporter")
     argparser.add_argument('-i', '--interval', type=int, default='1000',
                            help="Interval at which to collect metrics (milliseconds)")
     argparser.add_argument('-b', '--bucket', type=str, default='ouroboros-metrics',
                            help="InfluxDB bucket to write to")
+    argparser.add_argument('-o', '--output-file', type=str, default=None,
+                           help="Write line protocol to file instead of InfluxDB")
+    argparser.add_argument('-t', '--tag', action='append', default=[],
+                           help="Extra tag as key=value (repeatable)")
+    argparser.add_argument('-c', '--config', type=str, default='./config.ini',
+                           help="Path to config.ini")
+    argparser.add_argument('--url', type=str, default=None,
+                           help="InfluxDB server URL")
+    argparser.add_argument('--org', type=str, default=None,
+                           help="InfluxDB organization")
+    argparser.add_argument('--token', type=str, default=None,
+                           help="InfluxDB authentication token")
     args = argparser.parse_args()
-    interval_ms = args.interval
-    exporter = OuroborosExporter(bucket=args.bucket)
-    exporter.run(interval_ms=interval_ms)
+
+    # Parse extra tags from CLI
+    extra_tags = {}
+    for tag_str in args.tag:
+        if '=' not in tag_str:
+            print(f"Error: --tag must be in key=value format, got: '{tag_str}'",
+                  file=sys.stderr)
+            sys.exit(1)
+        k, v = tag_str.split('=', 1)
+        extra_tags[k] = v
+
+    # Read config file for defaults
+    output_file = args.output_file
+    interval = args.interval
+    export_bucket = args.bucket
+    influx_url = args.url
+    influx_org = args.org
+    influx_token = args.token
+
+    config = configparser.ConfigParser()
+    if os.path.exists(args.config):
+        config.read(args.config)
+        if config.has_section('output'):
+            if output_file is None and config.has_option('output', 'file'):
+                output_file = config.get('output', 'file')
+            if config.has_option('output', 'tags'):
+                for tag_str in config.get('output', 'tags').split(','):
+                    tag_str = tag_str.strip()
+                    if tag_str and '=' in tag_str:
+                        k, v = tag_str.split('=', 1)
+                        extra_tags.setdefault(k, v)
+        if config.has_section('exporter'):
+            if interval == 1000 and config.has_option('exporter', 'interval'):
+                interval = config.getint('exporter', 'interval')
+            if export_bucket == 'ouroboros-metrics' and config.has_option('exporter', 'bucket'):
+                export_bucket = config.get('exporter', 'bucket')
+        if config.has_section('influx2'):
+            if influx_url is None and config.has_option('influx2', 'url'):
+                influx_url = config.get('influx2', 'url')
+            if influx_org is None and config.has_option('influx2', 'org'):
+                influx_org = config.get('influx2', 'org')
+            if influx_token is None and config.has_option('influx2', 'token'):
+                influx_token = config.get('influx2', 'token')
+
+    # Instantiate the appropriate writer
+    if output_file:
+        writer = FileWriter(path=output_file, tags=extra_tags)
+    else:
+        writer = InfluxDBWriter(cfg_path=args.config, tags=extra_tags,
+                                url=influx_url, org=influx_org,
+                                token=influx_token)
+
+    exporter = OuroborosExporter(metrics_writer=writer, bucket=export_bucket)
+    try:
+        exporter.run(interval_ms=interval)
+    finally:
+        writer.close()
