@@ -67,6 +67,7 @@ class OuroborosRIBReader:
     Class for reading stuff from the Ouroboros system
     Resource Information Base (RIB)
     """
+
     def __init__(self,
                  rib_path: str):
 
@@ -101,8 +102,7 @@ class OuroborosRIBReader:
                                               ipcp_name: str,
                                               fd: str):
 
-        return os.path.join(self.rib_path, ipcp_name,
-                            'flow-allocator', fd)
+        return os.path.join(self.rib_path, ipcp_name, 'flow-allocator', fd)
 
     def _get_path_for_ipcp_flow_n_minus_1_info(self,
                                                ipcp_name: str,
@@ -332,12 +332,18 @@ class OuroborosRIBReader:
             'Received flow updates (packets)': 'recv_flow_updates_total',
             'Upstream congestion level': 'up_cong_lvl',
             'Downstream congestion level': 'down_cong_lvl',
-            'Upstream packet counter': 'up_pkt_ctr',
-            'Downstream packet counter': 'down_pkt_ctr',
-            'Congestion window size (ns)': 'cong_wnd_width_ns',
-            'Packets in this window': 'cong_wnd_current_pkts',
-            'Bytes in this window': 'cong_wnd_current_bytes',
-            'Max bytes in this window': 'cong_wnd_size_bytes',
+            'Paced rate (bytes/s)': 'paced_rate',
+            'Pacer lead (bytes)': 'cong_tokens',
+            'Congestion regime (code)': 'cong_regime',
+            'Control steps (count)': 'ctrl_steps_total',
+            'Control time elapsed (ns)': 'ctrl_time_ns_total',
+            'Control time banked (ns)': 'ctrl_banked_ns_total',
+            'Feedback updates (count)': 'fb_updates_total',
+            'Feedback timeouts (count)': 'fb_timeouts_total',
+            'Path capacity (bytes/s)': 'path_capacity',
+            'Capacity rate floor (bytes/s)': 'cap_rate_floor',
+            'Capacity updates (count)': 'cap_updates_total',
+            'Slow start peak rate (bytes/s)': 'ss_peak_rate',
         }
 
         ret = {}
@@ -372,6 +378,7 @@ class OuroborosRIBReader:
             'Smoothed rtt (ns)': 'srtt_ns',
             'RTT standard deviation (ns)': 'mdev_ns',
             'Retransmit timeout RTO (ns)': 'rto_ns',
+            'Minimum RTT (RACK base, ns)': 'min_rtt_ns',
             'Sender left window edge': 'snd_lwe',
             'Sender right window edge': 'snd_rwe',
             'Sender inactive (ns)': 'snd_inact',
@@ -380,14 +387,77 @@ class OuroborosRIBReader:
             'Receiver right window edge': 'rcv_rwe',
             'Receiver inactive (ns)': 'rcv_inact',
             'Receiver last ack': 'rcv_seqno',
-            'Number of pkt retransmissions': 'n_rxm',
-            'Number of rtt probes': 'n_prb',
-            'Number of rtt estimates': 'n_rtt',
-            'Number of duplicates received': 'n_dup',
-            'Number of delayed acks received': 'n_dak',
-            'Number of rendez-vous sent': 'n_rdv',
-            'Number of packets out of window': 'n_out',
-            'Number of packets out of rqueue': 'n_rqo'
+            'RXM (RTO-driven) sent': 'rxm_rto',
+            'RXM packets received': 'rxm_rcv',
+            '  duplicates received': 'rxm_dup_rcv',
+            'RXM (SACK mechanism) sent': 'rxm_sack',
+            'RXM (RACK-driven) sent': 'rxm_rack',
+            'RXM (DupThresh-driven) sent': 'rxm_dupthresh',
+            'RXM (NACK-driven) sent': 'rxm_nack',
+            'ACK packets sent': 'ack_snd',
+            'Delayed-ACK timer fires': 'ack_fire',
+            '  suppressed (seqno)': 'ack_supp_seqno',
+            '  suppressed (inact)': 'ack_supp_inact',
+            '  suppressed (rate)': 'ack_supp_rate',
+            'ACK packets received': 'ack_rcv',
+            '  fed RTT estimator': 'ack_rtt',
+            '  wire dups dropped': 'ack_dup_rcv',
+            'FRCTI_RCV time (ns)': 'rcv_proc_ns',
+            'tw_move time (ns)': 'tw_move_ns',
+            'drain_rx_nb calls': 'drain_calls',
+            'Duplicates received': 'dup_rcv',
+            'Out-of-window pkts received': 'out_rcv',
+            'Out-of-rqueue pkts received': 'rqo_rcv',
+            'OOO arrivals': 'ooo_rcv',
+            'SACKs sent': 'sack_snd',
+            'SACKs received': 'sack_rcv',
+            'D-SACKs sent': 'dsack_snd',
+            'D-SACKs received': 'dsack_rcv',
+            'D-SACK out-of-range dropped': 'dsack_drop',
+            'Pre-DRF NACKs sent': 'nack_snd',
+            'Pre-DRF NACKs received': 'nack_rcv',
+            'Tail loss probes sent': 'tlp_snd',
+            'Inactivity drops (silent)': 'inact_drop',
+            'DRF window rebases': 'drf_rebase',
+            'rq slots cleared by release_rq': 'rq_released',
+            'RTT probes sent': 'rttp_snd',
+            'RTT probe replies received': 'rttp_rcv',
+            'RTT estimator samples': 'rtt_smpl',
+            'Rendez-vous packets sent': 'rdv_snd',
+            'Rendez-vous packets received': 'rdv_rcv',
+            'Keepalives sent': 'ka_snd',
+            'Keepalives received': 'ka_rcv',
+            'SDU writes fragmented': 'sdu_snd_frag',
+            '  alloc fail mid-SDU': 'sdu_snd_alloc',
+            '  tx fail mid-SDU': 'sdu_snd_tx',
+            'Fragments sent': 'frag_snd',
+            'Fragments received': 'frag_rcv',
+            'SDUs delivered reassembled': 'sdu_reasm',
+            'SDUs delivered (SOLE)': 'sdu_sole',
+            'Fragments dropped (malformed)': 'frag_drop',
+            'Stream bytes sent': 'strm_snd_byte',
+            'Stream bytes received': 'strm_rcv_byte',
+            'Stream bytes delivered': 'strm_dlv_byte',
+            'Stream packets dropped': 'strm_drop',
+            'Stream FINs dropped': 'strm_fin_drop',
+            'RX rbuff queued': 'rx_q_now',
+            'TX rbuff queued': 'tx_q_now',
+            'RXM-due entries': 'rxm_due_count',
+            '  bail (acked)': 'rxm_due_acked',
+            '  bail (unowned)': 'rxm_due_unowned',
+            '  bail (aged)': 'rxm_due_aged',
+            '  bail (defer)': 'rxm_due_defer',
+            'RXM-arm malloc failures': 'rxm_arm_fail',
+            'RXM cancels (teardown)': 'rxm_cancel',
+            'RXM tx into dead flow': 'rxm_tx_dead',
+            'Tx ring drops (any cause)': 'tx_drop',
+            '  ack': 'tx_drop_ack',
+            '  sack': 'tx_drop_sack',
+            '  ka': 'tx_drop_ka',
+            '  rttp': 'tx_drop_rttp',
+            '  nack': 'tx_drop_nack',
+            '  rdv': 'tx_drop_rdv',
+            '  other': 'tx_drop_other',
         }
 
         ret = {}
@@ -596,3 +666,123 @@ class OuroborosRIBReader:
             proc_list += [proc]
 
         return proc_list
+
+    def _get_eth_flows_for_ipcp(self,
+                                ipcp_name: str) -> list[str]:
+
+        path = os.path.join(self._get_dir_for_ipcp(ipcp_name),
+                            'eth')
+
+        if not os.path.exists(path):
+            return []
+
+        try:
+            return [f.name for f in os.scandir(path)
+                    if f.name != 'summary']
+        except IOError as e:
+            print(e)
+            return []
+
+    def get_eth_summary_for_ipcp(self,
+                                 ipcp_name: str) -> dict:
+        """
+        Get summary statistics for the eth IPCP.
+        :param ipcp_name: name of the IPCP
+        :return: statistics in a dict
+        """
+
+        str_to_metric = {
+            'Active flows': 'n_flows',
+            'Total frames received': 'n_rcv',
+            'Total frames sent': 'n_snd',
+            'Management frames received': 'n_mgmt_rcv',
+            'Management frames sent': 'n_mgmt_snd',
+            'Bad EID/SAP frames': 'n_bad_id',
+            'Delivery (N+1) failures': 'n_dlv_f',
+            'Buffer alloc failures': 'n_buf_f',
+            'Frame read failures': 'n_rcv_f',
+            'Frame send failures': 'n_snd_f',
+            'Socket rcvbuf (bytes)': 'sock_rcvbuf',
+            'Socket sndbuf (bytes)': 'sock_sndbuf',
+            'Socket ingress (bytes)': 'sock_ingress',
+            'Socket egress (bytes)': 'sock_egress',
+            'Kernel frames received': 'kern_rcv',
+            'Kernel frames dropped': 'kern_drp',
+        }
+
+        path = os.path.join(self._get_dir_for_ipcp(ipcp_name),
+                            'eth', 'summary')
+        if not os.path.exists(path):
+            return {}
+
+        ret = {}
+
+        try:
+            with open(path, encoding='utf-8') as f:
+                for line in f.readlines():
+                    split_line = line.split(':')
+                    phrase = split_line[0]
+                    if phrase not in str_to_metric:
+                        continue
+                    metric = str_to_metric[phrase]
+                    value = self._get_trailing_number(
+                        split_line[1])
+                    ret[metric] = value
+        except IOError:
+            pass
+
+        return ret
+
+    def _get_eth_flow_info(self,
+                           ipcp_name: str,
+                           fd: str) -> dict:
+
+        str_to_metric = {
+            'Sent (packets)': 'p_snd',
+            'Sent (bytes)': 'b_snd',
+            'Send failed (packets)': 'p_snd_f',
+            'Received (packets)': 'p_rcv',
+            'Received (bytes)': 'b_rcv',
+            'Delivery (N+1) failures': 'p_dlv_f',
+        }
+
+        path = os.path.join(self._get_dir_for_ipcp(ipcp_name),
+                            'eth', fd)
+        if not os.path.exists(path):
+            return {}
+
+        ret = {'fd': fd}
+
+        try:
+            with open(path, encoding='utf-8') as f:
+                for line in f.readlines():
+                    split_line = line.split(':')
+                    phrase = split_line[0]
+                    if phrase not in str_to_metric:
+                        continue
+                    metric = str_to_metric[phrase]
+                    value = self._get_trailing_number(
+                        split_line[1])
+                    ret[metric] = value
+        except IOError:
+            pass
+
+        return ret
+
+    def get_eth_flow_info_for_ipcp(self,
+                                   ipcp_name: str
+                                   ) -> list[dict]:
+        """
+        Get flow info for all flows in an eth IPCP.
+        :param ipcp_name: name of the IPCP
+        :return: list of dicts with per-flow statistics
+        """
+
+        flow_info = []
+
+        for fd in self._get_eth_flows_for_ipcp(ipcp_name):
+            info = self._get_eth_flow_info(ipcp_name, fd)
+            if info:
+                flow_info += [info]
+
+        return flow_info

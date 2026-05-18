@@ -32,8 +32,11 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
 OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
+import ctypes
+import ctypes.util
 import os
 import socket
+import struct
 import sys
 import time
 import argparse
@@ -47,6 +50,65 @@ from influxdb_client.rest import ApiException
 from pytz import utc
 
 from ribreader import OuroborosRIBReader, IPCP_TYPES
+
+# ---------------------------------------------------------------------------
+# High-resolution periodic timer using Linux timerfd
+# Falls back to time.sleep() on non-Linux platforms or if libc is unavailable.
+# ---------------------------------------------------------------------------
+
+_CLOCK_MONOTONIC = 1
+_TFD_CLOEXEC = 0o2000000  # same as O_CLOEXEC
+
+_libc = None
+_libc_path = ctypes.util.find_library('c')
+if sys.platform == 'linux' and _libc_path:
+    try:
+        _libc = ctypes.CDLL(_libc_path, use_errno=True)
+    except OSError:
+        pass
+
+
+def _jain_index(values):
+    """Jain's fairness index over a list of non-negative rates.
+
+    J = (sum x)^2 / (n * sum x^2), in (0, 1]; 1.0 means perfectly fair.
+    Returns None when there is nothing to measure (empty or all-zero).
+    """
+    n = len(values)
+    if n == 0:
+        return None
+
+    total = sum(values)
+    sq = sum(v * v for v in values)
+    if sq == 0:
+        return None
+
+    return (total * total) / (n * sq)
+
+
+def _make_timerfd(interval_ns: int) -> int:
+    """Create and arm a CLOCK_MONOTONIC timerfd for *interval_ns* nanoseconds.
+
+    Returns the file descriptor.  The caller must close it when done.
+    Raises :exc:`OSError` if the syscalls fail.
+    """
+    fd = _libc.timerfd_create(_CLOCK_MONOTONIC, _TFD_CLOEXEC)
+    if fd < 0:
+        errno = ctypes.get_errno()
+        raise OSError(errno, f"timerfd_create failed: {os.strerror(errno)}")
+    sec = interval_ns // 1_000_000_000
+    nsec = interval_ns % 1_000_000_000
+    # struct itimerspec: it_interval (tv_sec, tv_nsec), it_value (tv_sec, tv_nsec)
+    # Both set to the same interval so the timer fires immediately and then
+    # auto-rearms at the same period.  Layout is 4 × int64 on 64-bit Linux.
+    itimerspec = struct.pack('qqqq', sec, nsec, sec, nsec)
+    buf = ctypes.create_string_buffer(itimerspec)
+    ret = _libc.timerfd_settime(fd, 0, buf, None)
+    if ret < 0:
+        errno = ctypes.get_errno()
+        os.close(fd)
+        raise OSError(errno, f"timerfd_settime failed: {os.strerror(errno)}")
+    return fd
 
 
 class MetricsWriter(ABC):
@@ -153,8 +215,8 @@ class OuroborosExporter:
             },
             'fields': {
                 'ipcps': n_ipcps,
-                'time': str(now)
-            }
+            },
+            'time': now,
         }
 
         self.writer.write(bucket=self.bucket,
@@ -173,8 +235,8 @@ class OuroborosExporter:
             },
             'fields': {
                 'flows': n_flows,
-                'time': str(now)
-            }
+            },
+            'time': now,
         }
 
         self.writer.write(bucket=self.bucket,
@@ -198,8 +260,29 @@ class OuroborosExporter:
             },
             'fields': {
                 metric: value,
-                'time': now
-            }
+            },
+            'time': now,
+        }
+
+        self.writer.write(bucket=self.bucket,
+                          record=Point.from_dict(point))
+
+    def _write_ouroboros_fa_fairness_metric(self,
+                                            now: str,
+                                            ipcp_name: str,
+                                            layer,
+                                            value):
+
+        point = {
+            'measurement': 'ouroboros_flow_allocator_jain_index',
+            'tags': {
+                'ipcp': ipcp_name,
+                'layer': layer,
+            },
+            'fields': {
+                'jain_index': value,
+            },
+            'time': now,
         }
 
         self.writer.write(bucket=self.bucket,
@@ -220,8 +303,8 @@ class OuroborosExporter:
             },
             'fields': {
                 metric: value,
-                'time': now
-            }
+            },
+            'time': now,
         }
 
         self.writer.write(bucket=self.bucket,
@@ -242,8 +325,8 @@ class OuroborosExporter:
             },
             'fields': {
                 metric: value,
-                'time': now
-            }
+            },
+            'time': now,
         }
 
         self.writer.write(bucket=self.bucket,
@@ -270,8 +353,8 @@ class OuroborosExporter:
             },
             'fields': {
                 metric: value,
-                'time': now
-            }
+            },
+            'time': now,
         }
 
         self.writer.write(bucket=self.bucket,
@@ -294,8 +377,8 @@ class OuroborosExporter:
                 },
                 'fields': {
                     metric: metrics[metric],
-                    'time': now
-                }
+                },
+                'time': now,
             }
 
         self.writer.write(bucket=self.bucket,
@@ -315,8 +398,52 @@ class OuroborosExporter:
             },
             'fields': {
                 metric: value,
-                'time': now
-            }
+            },
+            'time': now,
+        }
+
+        self.writer.write(bucket=self.bucket,
+                          record=Point.from_dict(point))
+
+    def _write_ouroboros_eth_summary_metric(self,
+                                            now,
+                                            metric,
+                                            ipcp_name,
+                                            layer,
+                                            value):
+        point = {
+            'measurement': f'ouroboros_eth_{metric}',
+            'tags': {
+                'ipcp': ipcp_name,
+                'layer': layer,
+            },
+            'fields': {
+                metric: value,
+            },
+            'time': now,
+        }
+
+        self.writer.write(bucket=self.bucket,
+                          record=Point.from_dict(point))
+
+    def _write_ouroboros_eth_flow_metric(self,
+                                         now,
+                                         metric,
+                                         fd,
+                                         ipcp_name,
+                                         layer,
+                                         value):
+        point = {
+            'measurement': f'ouroboros_eth_flow_{metric}',
+            'tags': {
+                'ipcp': ipcp_name,
+                'layer': layer,
+                'flow_descriptor': fd,
+            },
+            'fields': {
+                metric: value,
+            },
+            'time': now,
         }
 
         self.writer.write(bucket=self.bucket,
@@ -376,6 +503,7 @@ class OuroborosExporter:
 
         for ipcp in ipcps:
             flows = self.ribreader.get_flow_allocator_flow_info_for_ipcp(ipcp['name'])
+            rates = []
             for flow in flows:
                 for metric, value in flow.items():
                     if metric == 'endpoint_id':
@@ -384,6 +512,17 @@ class OuroborosExporter:
                     self._write_ouroboros_fa_congestion_metric(
                         metric, str(now), ipcp['name'],
                         flow['endpoint_id'], ipcp['layer'], value)
+
+                if 'paced_rate' in flow:
+                    rates.append(flow['paced_rate'])
+
+            # Per-IPCP Jain fairness over the CA-allocated (paced) rates;
+            # a bottleneck-fairness proxy, meaningful with >=2 flows.
+            if len(rates) >= 2:
+                jain = _jain_index(rates)
+                if jain is not None:
+                    self._write_ouroboros_fa_fairness_metric(
+                        str(now), ipcp['name'], ipcp['layer'], jain)
 
     def _export_ouroboros_lsdb_metrics(self):
 
@@ -451,6 +590,29 @@ class OuroborosExporter:
                         str(now), metric, frct_info['fd'],
                         process, value)
 
+    def _export_ouroboros_eth_metrics(self):
+        ipcps = self.ribreader.get_ipcp_list(names_only=True)
+
+        now = datetime.now(utc)
+
+        for ipcp in ipcps:
+            summary = self.ribreader.get_eth_summary_for_ipcp(
+                ipcp['name'])
+            for metric, value in summary.items():
+                self._write_ouroboros_eth_summary_metric(
+                    str(now), metric, ipcp['name'],
+                    ipcp['layer'], value)
+
+            flows = self.ribreader.get_eth_flow_info_for_ipcp(
+                ipcp['name'])
+            for flow in flows:
+                for metric, value in flow.items():
+                    if metric == 'fd':
+                        continue
+                    self._write_ouroboros_eth_flow_metric(
+                        str(now), metric, flow['fd'],
+                        ipcp['name'], ipcp['layer'], value)
+
     def export(self):
         """
         Export all available metrics
@@ -463,26 +625,54 @@ class OuroborosExporter:
         self._export_ouroboros_lsdb_metrics()
         self._export_ouroboros_dht_metrics()
         self._export_ouroboros_data_transfer_metrics()
+        self._export_ouroboros_eth_metrics()
         self._export_ouroboros_process_frct_metrics()
 
     def run(self,
-            interval_ms: float = 1000):
+            interval_ms: float = 1000,
+            slow_interval_ms: float = 1000):
         """
         Run the ouroboros exporter
 
-        :param interval_ms: read interval in milliseconds
+        :param interval_ms: FRCT poll interval in milliseconds
+        :param slow_interval_ms: interval for all other metrics (IPCP, LSDB,
+            DHT, FA, DT).  These change at roughly 1 Hz so there is no benefit
+            in polling them at the FRCT rate.  Must be >= interval_ms.
         :return: None
         """
+        slow_every = max(1, round(slow_interval_ms / interval_ms))
+        tick = 0
 
-        while True:
-            time.sleep(interval_ms / 1000.0)
-            self.export()
+        interval_ns = int(interval_ms * 1_000_000)
+        if _libc is not None:
+            tfd = _make_timerfd(interval_ns)
+            try:
+                while True:
+                    os.read(tfd, 8)  # blocks until next tick; value = missed count
+                    if tick % slow_every == 0:
+                        self.export()
+                    else:
+                        self._export_ouroboros_process_frct_metrics()
+                    tick += 1
+            finally:
+                os.close(tfd)
+        else:
+            while True:
+                time.sleep(interval_ms / 1000.0)
+                if tick % slow_every == 0:
+                    self.export()
+                else:
+                    self._export_ouroboros_process_frct_metrics()
+                tick += 1
 
 
 if __name__ == '__main__':
     argparser = argparse.ArgumentParser(description="Ouroboros metrics exporter")
     argparser.add_argument('-i', '--interval', type=int, default='1000',
-                           help="Interval at which to collect metrics (milliseconds)")
+                           help="Interval at which to collect FRCT metrics (milliseconds)")
+    argparser.add_argument('--slow-interval', type=int, default=None,
+                           help="Interval for IPCP/LSDB/DHT/FA/DT metrics (milliseconds, "
+                                "default: max(interval, 1000))")
     argparser.add_argument('-b', '--bucket', type=str, default='ouroboros-metrics',
                            help="InfluxDB bucket to write to")
     argparser.add_argument('-o', '--output-file', type=str, default=None,
@@ -552,6 +742,8 @@ if __name__ == '__main__':
 
     exporter = OuroborosExporter(metrics_writer=writer, bucket=export_bucket)
     try:
-        exporter.run(interval_ms=interval)
+        slow_interval = args.slow_interval if args.slow_interval is not None \
+            else max(interval, 1000)
+        exporter.run(interval_ms=interval, slow_interval_ms=slow_interval)
     finally:
         writer.close()
