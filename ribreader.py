@@ -262,7 +262,7 @@ class OuroborosRIBReader:
     @staticmethod
     def _get_trailing_number(s: str) -> int:
         """Extract trailing integer from a string."""
-        m = re.search(r'\d+$', s)
+        m = re.search(r'-?\d+$', s)
         return int(m.group()) if m else None
 
     def get_dht_stats_for_ipcp(self,
@@ -344,6 +344,9 @@ class OuroborosRIBReader:
             'Capacity rate floor (bytes/s)': 'cap_rate_floor',
             'Capacity updates (count)': 'cap_updates_total',
             'Slow start peak rate (bytes/s)': 'ss_peak_rate',
+            'Signal-loss cuts (count)': 'loss_cuts_total',
+            'Heartbeat RTT samples (count)': 'hb_rtt_samples_total',
+            'Ramp time constant (ns)': 'ss_tc_ns',
         }
 
         ret = {}

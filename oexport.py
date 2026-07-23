@@ -86,6 +86,38 @@ def _jain_index(values):
     return (total * total) / (n * sq)
 
 
+# Additive inc, proportional dec, loss recovery: the pacer is binding.
+_FAIRNESS_REGIMES = {1, 2, 4}
+
+
+def _fairness_rates(flows):
+    """Paced rates that count toward the Jain fairness index.
+
+    Fairness is only meaningful over senders whose pacer constrains
+    real data traffic. Slow start (0) has no allocation yet; source
+    limited (3) covers sinks, where paced_rate is reverse-ACK pacing.
+    Older RIBs without a regime code fall back to a byte-ratio test
+    to weed out sinks: ACK-only traffic is a few percent of the
+    received volume, nowhere near the 25% cutoff.
+    """
+    rates = []
+    for flow in flows:
+        rate = flow.get('paced_rate', 0)
+        if rate <= 0:
+            continue
+
+        regime = flow.get('cong_regime')
+        sent = flow.get('sent_bytes_total', 0)
+        rcvd = flow.get('recv_bytes_total', 0)
+        if regime is not None:
+            if regime in _FAIRNESS_REGIMES:
+                rates.append(rate)
+        elif sent * 4 > rcvd:
+            rates.append(rate)
+
+    return rates
+
+
 def _make_timerfd(interval_ns: int) -> int:
     """Create and arm a CLOCK_MONOTONIC timerfd for *interval_ns* nanoseconds.
 
@@ -366,7 +398,6 @@ class OuroborosExporter:
                                               ipcp_name,
                                               layer,
                                               metrics) -> None:
-        point = {}
         for metric in metrics:
             point = {
                 'measurement': f'ouroboros_data_transfer_{metric}',
@@ -381,8 +412,8 @@ class OuroborosExporter:
                 'time': now,
             }
 
-        self.writer.write(bucket=self.bucket,
-                          record=Point.from_dict(point))
+            self.writer.write(bucket=self.bucket,
+                              record=Point.from_dict(point))
 
     def _write_ouroboros_process_frct_metric(self,
                                              now,
@@ -503,7 +534,6 @@ class OuroborosExporter:
 
         for ipcp in ipcps:
             flows = self.ribreader.get_flow_allocator_flow_info_for_ipcp(ipcp['name'])
-            rates = []
             for flow in flows:
                 for metric, value in flow.items():
                     if metric == 'endpoint_id':
@@ -513,11 +543,9 @@ class OuroborosExporter:
                         metric, str(now), ipcp['name'],
                         flow['endpoint_id'], ipcp['layer'], value)
 
-                if 'paced_rate' in flow:
-                    rates.append(flow['paced_rate'])
-
             # Per-IPCP Jain fairness over the CA-allocated (paced) rates;
             # a bottleneck-fairness proxy, meaningful with >=2 flows.
+            rates = _fairness_rates(flows)
             if len(rates) >= 2:
                 jain = _jain_index(rates)
                 if jain is not None:
