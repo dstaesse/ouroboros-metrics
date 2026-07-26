@@ -1,36 +1,16 @@
-#!./venv/bin/python
+#
+# SPDX-FileCopyrightText: 2021 - 2026 Dimitri Staessens
+# SPDX-License-Identifier: BSD-3-Clause
+#
+
 """
 Ouroboros InfluxDB metrics exporter
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions
-are met:
-
-1. Redistributions of source code must retain the above copyright
-notice, this list of conditions and the following disclaimer.
-
-2. Redistributions in binary form must reproduce the above
-copyright notice, this list of conditions and the following
-disclaimer in the documentation and/or other materials provided
-with the distribution.
-
-3. Neither the name of the copyright holder nor the names of its
-contributors may be used to endorse or promote products derived
-from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
-STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
-OF THE POSSIBILITY OF SUCH DAMAGE.
+Samples the Ouroboros RIB on a fixed period and writes the readings to
+InfluxDB or to a file.
 """
+
+from __future__ import annotations
 
 import ctypes
 import ctypes.util
@@ -43,6 +23,8 @@ import argparse
 import configparser
 from abc import ABC, abstractmethod
 from datetime import datetime
+from types import TracebackType
+from typing import Any, Optional
 
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import WriteOptions, PointSettings
@@ -51,15 +33,12 @@ from pytz import utc
 
 from ribreader import OuroborosRIBReader, IPCP_TYPES
 
-# ---------------------------------------------------------------------------
-# High-resolution periodic timer using Linux timerfd
-# Falls back to time.sleep() on non-Linux platforms or if libc is unavailable.
-# ---------------------------------------------------------------------------
-
 _CLOCK_MONOTONIC = 1
-_TFD_CLOEXEC = 0o2000000  # same as O_CLOEXEC
+_TFD_CLOEXEC = 0o2000000
+_FAIRNESS_REGIMES = {1, 2, 4}
 
 _libc = None
+
 _libc_path = ctypes.util.find_library('c')
 if sys.platform == 'linux' and _libc_path:
     try:
@@ -68,17 +47,17 @@ if sys.platform == 'linux' and _libc_path:
         pass
 
 
-def _jain_index(values):
-    """Jain's fairness index over a list of non-negative rates.
-
-    J = (sum x)^2 / (n * sum x^2), in (0, 1]; 1.0 means perfectly fair.
-    Returns None when there is nothing to measure (empty or all-zero).
+def _jain_index(values: list[float]) -> Optional[float]:
     """
+    Jain's fairness index over a list of non-negative rates.
+    """
+
     n = len(values)
     if n == 0:
         return None
 
     total = sum(values)
+
     sq = sum(v * v for v in values)
     if sq == 0:
         return None
@@ -86,21 +65,13 @@ def _jain_index(values):
     return (total * total) / (n * sq)
 
 
-# Additive inc, proportional dec, loss recovery: the pacer is binding.
-_FAIRNESS_REGIMES = {1, 2, 4}
-
-
-def _fairness_rates(flows):
-    """Paced rates that count toward the Jain fairness index.
-
-    Fairness is only meaningful over senders whose pacer constrains
-    real data traffic. Slow start (0) has no allocation yet; source
-    limited (3) covers sinks, where paced_rate is reverse-ACK pacing.
-    Older RIBs without a regime code fall back to a byte-ratio test
-    to weed out sinks: ACK-only traffic is a few percent of the
-    received volume, nowhere near the 25% cutoff.
+def _fairness_rates(flows: list[dict]) -> list[float]:
     """
+    Paced rates that count toward the Jain fairness index.
+    """
+
     rates = []
+
     for flow in flows:
         rate = flow.get('paced_rate', 0)
         if rate <= 0:
@@ -109,6 +80,7 @@ def _fairness_rates(flows):
         regime = flow.get('cong_regime')
         sent = flow.get('sent_bytes_total', 0)
         rcvd = flow.get('recv_bytes_total', 0)
+
         if regime is not None:
             if regime in _FAIRNESS_REGIMES:
                 rates.append(rate)
@@ -119,53 +91,67 @@ def _fairness_rates(flows):
 
 
 def _make_timerfd(interval_ns: int) -> int:
-    """Create and arm a CLOCK_MONOTONIC timerfd for *interval_ns* nanoseconds.
+    """
+    Create and arm a CLOCK_MONOTONIC timerfd for *interval_ns*
+    nanoseconds.
 
-    Returns the file descriptor.  The caller must close it when done.
+    Returns the file descriptor. The caller must close it when done.
     Raises :exc:`OSError` if the syscalls fail.
     """
+
     fd = _libc.timerfd_create(_CLOCK_MONOTONIC, _TFD_CLOEXEC)
     if fd < 0:
         errno = ctypes.get_errno()
         raise OSError(errno, f"timerfd_create failed: {os.strerror(errno)}")
+
     sec = interval_ns // 1_000_000_000
     nsec = interval_ns % 1_000_000_000
-    # struct itimerspec: it_interval (tv_sec, tv_nsec), it_value (tv_sec, tv_nsec)
-    # Both set to the same interval so the timer fires immediately and then
-    # auto-rearms at the same period.  Layout is 4 × int64 on 64-bit Linux.
+
     itimerspec = struct.pack('qqqq', sec, nsec, sec, nsec)
     buf = ctypes.create_string_buffer(itimerspec)
+
     ret = _libc.timerfd_settime(fd, 0, buf, None)
     if ret < 0:
         errno = ctypes.get_errno()
+
         os.close(fd)
         raise OSError(errno, f"timerfd_settime failed: {os.strerror(errno)}")
+
     return fd
 
 
 class MetricsWriter(ABC):
-    """Abstract base class for metrics output writers."""
+    """
+    Abstract base class for metrics output writers.
+    """
 
     @abstractmethod
-    def write(self, bucket: str, record: Point):
-        """Write a single metric point."""
+    def write(self, bucket: str, record: Point) -> None:
+        """
+        Write a single metric point.
+        """
 
     @abstractmethod
-    def close(self):
-        """Release resources held by the writer."""
+    def close(self) -> None:
+        """
+        Release resources held by the writer.
+        """
 
 
 class InfluxDBWriter(MetricsWriter):
-    """Write metrics to an InfluxDB instance."""
+    """
+    Write metrics to an InfluxDB instance.
+    """
 
     def __init__(self,  # pylint: disable=too-many-arguments,too-many-positional-arguments
                  cfg_path: str = './config.ini',
                  tags: dict = None,
                  url: str = None,
                  org: str = None,
-                 token: str = None):
+                 token: str = None) -> None:
 
         point_settings = PointSettings()
+
         point_settings.add_default_tag('system', socket.gethostname())
 
         if tags:
@@ -184,61 +170,69 @@ class InfluxDBWriter(MetricsWriter):
             self.client = InfluxDBClient(url=url, org=org, token=token)
         else:
             self.client = InfluxDBClient.from_config_file(cfg_path)
+
         self._write_api = self.client.write_api(write_options=write_options,
                                                 point_settings=point_settings).write
 
-    def write(self, bucket: str, record: Point):
+    def write(self, bucket: str, record: Point) -> None:
         try:
             self._write_api(bucket=bucket, record=record)
         except ApiException as e:
             print(e)
 
-    def close(self):
+    def close(self) -> None:
         self.client.close()
 
 
 class FileWriter(MetricsWriter):
-    """Write metrics as InfluxDB line protocol to a file."""
+    """
+    Write metrics as InfluxDB line protocol to a file.
+    """
 
     def __init__(self,
                  path: str,
-                 tags: dict = None):
+                 tags: dict = None) -> None:
 
         self._tags = tags or {}
         self._file = open(path, 'a', encoding='utf-8')  # pylint: disable=consider-using-with
 
-    def write(self, bucket: str, record: Point):
+    def write(self, bucket: str, record: Point) -> None:
         for key, value in self._tags.items():
             record = record.tag(key, value)
+
         record = record.tag('system', socket.gethostname())
+
         self._file.write(record.to_line_protocol() + '\n')
         self._file.flush()
 
-    def close(self):
+    def close(self) -> None:
         self._file.close()
 
 
 class OuroborosExporter:
     """
-    Export Ouroboros metrics to InfluxDB
+    Export Ouroboros metrics through a MetricsWriter
     """
 
     def __init__(self,
                  metrics_writer: MetricsWriter,
-                 bucket='ouroboros-metrics',
-                 rib_path='/tmp/ouroboros/'):
+                 bucket: str = 'ouroboros-metrics',
+                 rib_path: str = '/tmp/ouroboros/') -> None:
 
         self.bucket = bucket
         self.writer = metrics_writer
         self.ribreader = OuroborosRIBReader(rib_path=rib_path)
 
-    def __exit__(self, _type, value, traceback):
+    def __exit__(self,
+                 _type: type[BaseException] | None,
+                 value: BaseException | None,
+                 traceback: TracebackType | None) -> None:
         self.writer.close()
 
     def _write_ouroboros_ipcps_total(self,
-                                     now,
-                                     ipcp_type,
-                                     n_ipcps):
+                                     now: str,
+                                     ipcp_type: str,
+                                     n_ipcps: int) -> None:
 
         point = {
             'measurement': f'ouroboros_{ipcp_type}_ipcps_total',
@@ -255,10 +249,10 @@ class OuroborosExporter:
                           record=Point.from_dict(point))
 
     def _write_ouroboros_flow_allocator_flows_total(self,
-                                                    now,
-                                                    ipcp,
-                                                    layer,
-                                                    n_flows):
+                                                    now: str,
+                                                    ipcp: str,
+                                                    layer: str,
+                                                    n_flows: int) -> None:
         point = {
             'measurement': 'ouroboros_flow_allocator_flows_total',
             'tags': {
@@ -274,14 +268,14 @@ class OuroborosExporter:
         self.writer.write(bucket=self.bucket,
                           record=Point.from_dict(point))
 
-    # pylint: disable-msg=too-many-arguments,too-many-positional-arguments
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
     def _write_ouroboros_fa_congestion_metric(self,
                                               metric: str,
                                               now: str,
                                               ipcp_name: str,
                                               eid: str,
-                                              layer,
-                                              value):
+                                              layer: str,
+                                              value: Any) -> None:
 
         point = {
             'measurement': f'ouroboros_flow_allocator_{metric}',
@@ -302,8 +296,8 @@ class OuroborosExporter:
     def _write_ouroboros_fa_fairness_metric(self,
                                             now: str,
                                             ipcp_name: str,
-                                            layer,
-                                            value):
+                                            layer: str,
+                                            value: float) -> None:
 
         point = {
             'measurement': 'ouroboros_flow_allocator_jain_index',
@@ -325,7 +319,7 @@ class OuroborosExporter:
                                           now: str,
                                           ipcp_name: str,
                                           layer: str,
-                                          value):
+                                          value: Any) -> None:
 
         point = {
             'measurement': f'ouroboros_lsdb_{metric}_total',
@@ -347,7 +341,7 @@ class OuroborosExporter:
                                          now: str,
                                          ipcp_name: str,
                                          layer: str,
-                                         value):
+                                         value: Any) -> None:
 
         point = {
             'measurement': f'ouroboros_dht_{metric}_total',
@@ -371,8 +365,8 @@ class OuroborosExporter:
                                               fd: str,
                                               endpoint: str,
                                               ipcp_name: str,
-                                              layer,
-                                              value):
+                                              layer: str,
+                                              value: Any) -> None:
 
         point = {
             'measurement': f'ouroboros_data_transfer_{metric}',
@@ -393,11 +387,11 @@ class OuroborosExporter:
                           record=Point.from_dict(point))
 
     def _write_ouroboros_data_transfer_queued(self,
-                                              now,
-                                              fd,
-                                              ipcp_name,
-                                              layer,
-                                              metrics) -> None:
+                                              now: str,
+                                              fd: str,
+                                              ipcp_name: str,
+                                              layer: str,
+                                              metrics: dict) -> None:
         for metric in metrics:
             point = {
                 'measurement': f'ouroboros_data_transfer_{metric}',
@@ -416,11 +410,11 @@ class OuroborosExporter:
                               record=Point.from_dict(point))
 
     def _write_ouroboros_process_frct_metric(self,
-                                             now,
-                                             metric,
-                                             fd,
-                                             process,
-                                             value):
+                                             now: str,
+                                             metric: str,
+                                             fd: str,
+                                             process: str,
+                                             value: Any) -> None:
         point = {
             'measurement': f'ouroboros_process_frct_{metric}',
             'tags': {
@@ -437,11 +431,11 @@ class OuroborosExporter:
                           record=Point.from_dict(point))
 
     def _write_ouroboros_eth_summary_metric(self,
-                                            now,
-                                            metric,
-                                            ipcp_name,
-                                            layer,
-                                            value):
+                                            now: str,
+                                            metric: str,
+                                            ipcp_name: str,
+                                            layer: str,
+                                            value: Any) -> None:
         point = {
             'measurement': f'ouroboros_eth_{metric}',
             'tags': {
@@ -458,12 +452,12 @@ class OuroborosExporter:
                           record=Point.from_dict(point))
 
     def _write_ouroboros_eth_flow_metric(self,
-                                         now,
-                                         metric,
-                                         fd,
-                                         ipcp_name,
-                                         layer,
-                                         value):
+                                         now: str,
+                                         metric: str,
+                                         fd: str,
+                                         ipcp_name: str,
+                                         layer: str,
+                                         value: Any) -> None:
         point = {
             'measurement': f'ouroboros_eth_flow_{metric}',
             'tags': {
@@ -479,7 +473,7 @@ class OuroborosExporter:
 
         self.writer.write(bucket=self.bucket,
                           record=Point.from_dict(point))
-    # pylint: enable-msg=too-many-arguments,too-many-positional-arguments
+    # pylint: enable=too-many-arguments,too-many-positional-arguments
 
     @staticmethod
     def _filter_ipcp_list(ipcp_list: list[dict],
@@ -502,7 +496,7 @@ class OuroborosExporter:
 
         return ipcp_list
 
-    def _export_ouroboros_ipcps_total(self):
+    def _export_ouroboros_ipcps_total(self) -> None:
 
         ipcps = self.ribreader.get_ipcp_list()
 
@@ -516,7 +510,7 @@ class OuroborosExporter:
         for _type, n_ipcps in ipcps_total.items():
             self._write_ouroboros_ipcps_total(now, _type, n_ipcps)
 
-    def _export_ouroboros_flow_allocator_flows_total(self):
+    def _export_ouroboros_flow_allocator_flows_total(self) -> None:
 
         ipcps = self.ribreader.get_ipcp_list()
 
@@ -526,7 +520,7 @@ class OuroborosExporter:
             self._write_ouroboros_flow_allocator_flows_total(
                 now, ipcp['name'], ipcp['layer'], ipcp['flows'])
 
-    def _export_ouroboros_fa_congestion_metrics(self):
+    def _export_ouroboros_fa_congestion_metrics(self) -> None:
 
         ipcps = self.ribreader.get_ipcp_list(names_only=True)
 
@@ -543,8 +537,6 @@ class OuroborosExporter:
                         metric, str(now), ipcp['name'],
                         flow['endpoint_id'], ipcp['layer'], value)
 
-            # Per-IPCP Jain fairness over the CA-allocated (paced) rates;
-            # a bottleneck-fairness proxy, meaningful with >=2 flows.
             rates = _fairness_rates(flows)
             if len(rates) >= 2:
                 jain = _jain_index(rates)
@@ -552,7 +544,7 @@ class OuroborosExporter:
                     self._write_ouroboros_fa_fairness_metric(
                         str(now), ipcp['name'], ipcp['layer'], jain)
 
-    def _export_ouroboros_lsdb_metrics(self):
+    def _export_ouroboros_lsdb_metrics(self) -> None:
 
         ipcps = self.ribreader.get_ipcp_list(names_only=True)
 
@@ -567,7 +559,7 @@ class OuroborosExporter:
                                                        ipcp['layer'],
                                                        value)
 
-    def _export_ouroboros_dht_metrics(self):
+    def _export_ouroboros_dht_metrics(self) -> None:
 
         ipcps = self.ribreader.get_ipcp_list(names_only=True)
 
@@ -582,7 +574,7 @@ class OuroborosExporter:
                                                       ipcp['layer'],
                                                       value)
 
-    def _export_ouroboros_data_transfer_metrics(self):
+    def _export_ouroboros_data_transfer_metrics(self) -> None:
         ipcps = self.ribreader.get_ipcp_list(names_only=True)
 
         now = datetime.now(utc)
@@ -598,15 +590,17 @@ class OuroborosExporter:
                             flow['fd'], flow['endpoint'],
                             ipcp['name'], ipcp['layer'],
                             flow[qoscube][metric])
+
                 queued = {
                     'queued_packets_rx': flow['queued_packets_rx'],
                     'queued_packets_tx': flow['queued_packets_tx']
                 }
+
                 self._write_ouroboros_data_transfer_queued(
                     str(now), flow['fd'], ipcp['name'],
                     ipcp['layer'], queued)
 
-    def _export_ouroboros_process_frct_metrics(self):
+    def _export_ouroboros_process_frct_metrics(self) -> None:
         processes = self.ribreader.get_process_list()
 
         now = datetime.now(utc)
@@ -618,7 +612,7 @@ class OuroborosExporter:
                         str(now), metric, frct_info['fd'],
                         process, value)
 
-    def _export_ouroboros_eth_metrics(self):
+    def _export_ouroboros_eth_metrics(self) -> None:
         ipcps = self.ribreader.get_ipcp_list(names_only=True)
 
         now = datetime.now(utc)
@@ -641,10 +635,9 @@ class OuroborosExporter:
                         str(now), metric, flow['fd'],
                         ipcp['name'], ipcp['layer'], value)
 
-    def export(self):
+    def export(self) -> None:
         """
         Export all available metrics
-        :return:
         """
 
         self._export_ouroboros_ipcps_total()
@@ -658,25 +651,26 @@ class OuroborosExporter:
 
     def run(self,
             interval_ms: float = 1000,
-            slow_interval_ms: float = 1000):
+            slow_interval_ms: float = 1000) -> None:
         """
         Run the ouroboros exporter
 
         :param interval_ms: FRCT poll interval in milliseconds
-        :param slow_interval_ms: interval for all other metrics (IPCP, LSDB,
-            DHT, FA, DT).  These change at roughly 1 Hz so there is no benefit
-            in polling them at the FRCT rate.  Must be >= interval_ms.
-        :return: None
+        :param slow_interval_ms: interval for all other metrics (IPCP,
+            LSDB, DHT, FA, DT) in milliseconds
         """
+
         slow_every = max(1, round(slow_interval_ms / interval_ms))
         tick = 0
 
         interval_ns = int(interval_ms * 1_000_000)
+
         if _libc is not None:
             tfd = _make_timerfd(interval_ns)
             try:
                 while True:
-                    os.read(tfd, 8)  # blocks until next tick; value = missed count
+                    os.read(tfd, 8)
+
                     if tick % slow_every == 0:
                         self.export()
                     else:
@@ -687,15 +681,22 @@ class OuroborosExporter:
         else:
             while True:
                 time.sleep(interval_ms / 1000.0)
+
                 if tick % slow_every == 0:
                     self.export()
                 else:
                     self._export_ouroboros_process_frct_metrics()
+
                 tick += 1
 
 
-if __name__ == '__main__':
+def _parse_args() -> argparse.Namespace:
+    """
+    The command line as an argparse namespace.
+    """
+
     argparser = argparse.ArgumentParser(description="Ouroboros metrics exporter")
+
     argparser.add_argument('-i', '--interval', type=int, default='1000',
                            help="Interval at which to collect FRCT metrics (milliseconds)")
     argparser.add_argument('--slow-interval', type=int, default=None,
@@ -715,63 +716,145 @@ if __name__ == '__main__':
                            help="InfluxDB organization")
     argparser.add_argument('--token', type=str, default=None,
                            help="InfluxDB authentication token")
-    args = argparser.parse_args()
 
-    # Parse extra tags from CLI
-    extra_tags = {}
-    for tag_str in args.tag:
+    return argparser.parse_args()
+
+
+def _tags_from_cli(tag_args: list[str]) -> dict:
+    """
+    The --tag key=value pairs as a dict. A malformed pair exits 1.
+    """
+
+    tags = {}
+
+    for tag_str in tag_args:
         if '=' not in tag_str:
             print(f"Error: --tag must be in key=value format, got: '{tag_str}'",
                   file=sys.stderr)
             sys.exit(1)
-        k, v = tag_str.split('=', 1)
-        extra_tags[k] = v
 
-    # Read config file for defaults
-    output_file = args.output_file
-    interval = args.interval
-    export_bucket = args.bucket
-    influx_url = args.url
-    influx_org = args.org
-    influx_token = args.token
+        key, value = tag_str.split('=', 1)
+        tags[key] = value
+
+    return tags
+
+
+def _merge_output_section(config: configparser.ConfigParser,
+                          args: argparse.Namespace) -> None:
+    """
+    Apply the [output] section where the command line left a gap.
+    """
+
+    if not config.has_section('output'):
+        return
+
+    if args.output_file is None and config.has_option('output', 'file'):
+        args.output_file = config.get('output', 'file')
+
+    if not config.has_option('output', 'tags'):
+        return
+
+    for tag_str in config.get('output', 'tags').split(','):
+        tag_str = tag_str.strip()
+        if tag_str and '=' in tag_str:
+            key, value = tag_str.split('=', 1)
+
+            args.tags.setdefault(key, value)
+
+
+def _merge_exporter_section(config: configparser.ConfigParser,
+                            args: argparse.Namespace) -> None:
+    """
+    Apply the [exporter] section where the command line left a gap.
+    """
+
+    if not config.has_section('exporter'):
+        return
+
+    if args.interval == 1000 and config.has_option('exporter', 'interval'):
+        args.interval = config.getint('exporter', 'interval')
+
+    if (args.bucket == 'ouroboros-metrics'
+            and config.has_option('exporter', 'bucket')):
+        args.bucket = config.get('exporter', 'bucket')
+
+
+def _merge_influx_section(config: configparser.ConfigParser,
+                          args: argparse.Namespace) -> None:
+    """
+    Apply the [influx2] section where the command line left a gap.
+    """
+
+    if not config.has_section('influx2'):
+        return
+
+    if args.url is None and config.has_option('influx2', 'url'):
+        args.url = config.get('influx2', 'url')
+
+    if args.org is None and config.has_option('influx2', 'org'):
+        args.org = config.get('influx2', 'org')
+
+    if args.token is None and config.has_option('influx2', 'token'):
+        args.token = config.get('influx2', 'token')
+
+
+def _merge_config(path: str, args: argparse.Namespace) -> None:
+    """
+    Layer the config file at *path* underneath *args*. A missing file
+    leaves *args* untouched.
+    """
+
+    if not os.path.exists(path):
+        return
 
     config = configparser.ConfigParser()
-    if os.path.exists(args.config):
-        config.read(args.config)
-        if config.has_section('output'):
-            if output_file is None and config.has_option('output', 'file'):
-                output_file = config.get('output', 'file')
-            if config.has_option('output', 'tags'):
-                for tag_str in config.get('output', 'tags').split(','):
-                    tag_str = tag_str.strip()
-                    if tag_str and '=' in tag_str:
-                        k, v = tag_str.split('=', 1)
-                        extra_tags.setdefault(k, v)
-        if config.has_section('exporter'):
-            if interval == 1000 and config.has_option('exporter', 'interval'):
-                interval = config.getint('exporter', 'interval')
-            if export_bucket == 'ouroboros-metrics' and config.has_option('exporter', 'bucket'):
-                export_bucket = config.get('exporter', 'bucket')
-        if config.has_section('influx2'):
-            if influx_url is None and config.has_option('influx2', 'url'):
-                influx_url = config.get('influx2', 'url')
-            if influx_org is None and config.has_option('influx2', 'org'):
-                influx_org = config.get('influx2', 'org')
-            if influx_token is None and config.has_option('influx2', 'token'):
-                influx_token = config.get('influx2', 'token')
 
-    # Instantiate the appropriate writer
-    if output_file:
-        writer = FileWriter(path=output_file, tags=extra_tags)
-    else:
-        writer = InfluxDBWriter(cfg_path=args.config, tags=extra_tags,
-                                url=influx_url, org=influx_org,
-                                token=influx_token)
+    config.read(path)
 
-    exporter = OuroborosExporter(metrics_writer=writer, bucket=export_bucket)
+    _merge_output_section(config, args)
+    _merge_exporter_section(config, args)
+    _merge_influx_section(config, args)
+
+
+def _make_writer(args: argparse.Namespace) -> MetricsWriter:
+    """
+    The writer the options ask for.
+    """
+
+    if args.output_file:
+        return FileWriter(path=args.output_file, tags=args.tags)
+
+    return InfluxDBWriter(cfg_path=args.config, tags=args.tags,
+                          url=args.url, org=args.org,
+                          token=args.token)
+
+
+def main() -> None:
+    """
+    Run the Ouroboros metrics exporter.
+    """
+
+    args = _parse_args()
+
+    args.tags = _tags_from_cli(args.tag)
+
+    _merge_config(args.config, args)
+
+    writer = _make_writer(args)
+
+    exporter = OuroborosExporter(metrics_writer=writer,
+                                 bucket=args.bucket)
     try:
-        slow_interval = args.slow_interval if args.slow_interval is not None \
-            else max(interval, 1000)
-        exporter.run(interval_ms=interval, slow_interval_ms=slow_interval)
+        if args.slow_interval is not None:
+            slow_interval = args.slow_interval
+        else:
+            slow_interval = max(args.interval, 1000)
+
+        exporter.run(interval_ms=args.interval,
+                     slow_interval_ms=slow_interval)
     finally:
         writer.close()
+
+
+if __name__ == '__main__':
+    main()

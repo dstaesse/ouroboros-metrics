@@ -1,35 +1,13 @@
+#
+# SPDX-FileCopyrightText: 2021 - 2026 Dimitri Staessens
+# SPDX-License-Identifier: BSD-3-Clause
+#
+
 """
 Ouroboros RIB filesystem reader
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions
-are met:
-
-1. Redistributions of source code must retain the above copyright
-notice, this list of conditions and the following disclaimer.
-
-2. Redistributions in binary form must reproduce the above
-copyright notice, this list of conditions and the following
-disclaimer in the documentation and/or other materials provided
-with the distribution.
-
-3. Neither the name of the copyright holder nor the names of its
-contributors may be used to endorse or promote products derived
-from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
-STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
-OF THE POSSIBILITY OF SUCH DAMAGE.
 """
+
+from __future__ import annotations
 
 import os
 import re
@@ -64,12 +42,11 @@ IPCP_STATES = [IPCP_STATE_NULL,
 
 class OuroborosRIBReader:
     """
-    Class for reading stuff from the Ouroboros system
-    Resource Information Base (RIB)
+    Reader for the Ouroboros Resource Information Base (RIB)
     """
 
     def __init__(self,
-                 rib_path: str):
+                 rib_path: str) -> None:
 
         self.rib_path = rib_path
 
@@ -100,7 +77,7 @@ class OuroborosRIBReader:
 
     def _get_path_for_ipcp_flow_n_plus_1_info(self,
                                               ipcp_name: str,
-                                              fd: str):
+                                              fd: str) -> str:
 
         return os.path.join(self.rib_path, ipcp_name, 'flow-allocator', fd)
 
@@ -109,6 +86,7 @@ class OuroborosRIBReader:
                                                fd: str) -> str:
 
         dt_dir = self._get_dt_dir_for_ipcp(ipcp_name)
+
         return os.path.join(dt_dir, fd)
 
     def _get_path_for_frct_flow_info(self,
@@ -116,12 +94,14 @@ class OuroborosRIBReader:
                                      fd: str) -> str:
 
         process_dir = self._get_dir_for_process(process)
+
         return os.path.join(process_dir, str(fd), 'frct')
 
     def _get_ipcp_type_for_ipcp(self,
                                 ipcp_name: str) -> str:
 
         _dir = self._get_dir_for_ipcp(ipcp_name)
+
         path = f'{_dir}/info/_type'
         if not os.path.exists(path):
             return IPCP_TYPE_UNKNOWN
@@ -136,6 +116,7 @@ class OuroborosRIBReader:
                                  ipcp_name: str) -> str:
 
         _dir = self._get_dir_for_ipcp(ipcp_name)
+
         path = f'{_dir}/info/_layer'
         if not os.path.exists(path):
             return '(error)'
@@ -150,6 +131,7 @@ class OuroborosRIBReader:
                                  ipcp_name: str) -> str:
 
         _dir = self._get_dir_for_ipcp(ipcp_name)
+
         path = f'{_dir}/info/_state'
         if not os.path.exists(path):
             return IPCP_TYPE_UNKNOWN
@@ -166,7 +148,6 @@ class OuroborosRIBReader:
 
         path = os.path.join(self._get_dir_for_ipcp(ipcp_name),
                             'flow-allocator')
-
         if not os.path.exists(path):
             return []
 
@@ -194,7 +175,7 @@ class OuroborosRIBReader:
             return []
 
     def _get_address_for_ipcp(self,
-                              ipcp_name):
+                              ipcp_name: str) -> Optional[str]:
 
         path = self._get_dir_for_ipcp(ipcp_name)
         try:
@@ -243,8 +224,10 @@ class OuroborosRIBReader:
                             src = line.split()[-1]
                             if src not in nodes:
                                 nodes += [src]
+
                             if src == address:
                                 neighbors += 1
+
                         if 'dst' in line:
                             dst = line.split()[-1]
                             if dst not in nodes:
@@ -260,9 +243,10 @@ class OuroborosRIBReader:
         return stats
 
     @staticmethod
-    def _get_trailing_number(s: str) -> int:
-        """Extract trailing integer from a string."""
+    def _get_trailing_number(s: str) -> Optional[int]:
+
         m = re.search(r'-?\d+$', s)
+
         return int(m.group()) if m else None
 
     def get_dht_stats_for_ipcp(self,
@@ -289,9 +273,11 @@ class OuroborosRIBReader:
         with open(path, encoding='utf-8') as f:
             for line in f.readlines():
                 split_line = line.split(':')
+
                 phrase = split_line[0]
                 if phrase not in str_to_metric:
                     continue
+
                 metric = str_to_metric[phrase]
                 value = self._get_trailing_number(split_line[1])
                 ret[metric] = value
@@ -300,9 +286,8 @@ class OuroborosRIBReader:
 
     def _get_flows_for_process(self,
                                process_name: str) -> list[str]:
-        """Get flow descriptors for a process."""
-        path = self._get_dir_for_process(process_name)
 
+        path = self._get_dir_for_process(process_name)
         if not os.path.exists(path):
             return []
 
@@ -316,7 +301,6 @@ class OuroborosRIBReader:
     def _get_flow_info_for_n_plus_1_flow(self,
                                          ipcp_name: str,
                                          fd: str) -> dict:
-        """Get info for a single N+1 flow."""
 
         str_to_metric = {
             'Local endpoint ID': 'endpoint_id',
@@ -353,16 +337,17 @@ class OuroborosRIBReader:
 
         path = self._get_path_for_ipcp_flow_n_plus_1_info(
             ipcp_name, fd)
-
         if not os.path.exists(path):
             return {}
 
         with open(path, encoding='utf-8') as f:
             for line in f.readlines():
                 split_line = line.split(':')
+
                 phrase = split_line[0]
                 if phrase not in str_to_metric:
                     continue
+
                 metric = str_to_metric[phrase]
                 value = self._get_trailing_number(split_line[1])
                 ret[metric] = value
@@ -372,7 +357,6 @@ class OuroborosRIBReader:
     def _get_frct_info_for_process_flow(self,
                                         process: str,
                                         fd: str) -> dict:
-        """Get FRCT info for a single process flow."""
 
         str_to_metric = {
             'Maximum packet lifetime (ns)': 'mpl_timer_ns',
@@ -466,7 +450,6 @@ class OuroborosRIBReader:
         ret = {}
 
         path = self._get_path_for_frct_flow_info(process, fd)
-
         if not os.path.exists(path):
             return {}
 
@@ -475,9 +458,11 @@ class OuroborosRIBReader:
         with open(path, encoding='utf-8') as f:
             for line in f.readlines():
                 split_line = line.split(':')
+
                 phrase = split_line[0]
                 if phrase not in str_to_metric:
                     continue
+
                 metric = str_to_metric[phrase]
                 value = self._get_trailing_number(split_line[1])
                 ret[metric] = value
@@ -490,8 +475,9 @@ class OuroborosRIBReader:
         """
         Get the flow information for all N+1 flows in an IPCP.
         :param ipcp_name: name of the IPCP
-        :return: dict with flow information
+        :return: list of dicts with per-flow information
         """
+
         flow_info = []
 
         flow_descriptors = self._get_n_plus_1_flows_for_ipcp(
@@ -506,7 +492,6 @@ class OuroborosRIBReader:
     def _get_flow_info_for_n_minus_1_flow(self,
                                           ipcp_name: str,
                                           fd: str) -> dict:
-        """Get info for a single N-1 (data transfer) flow."""
 
         ret = {}
 
@@ -536,6 +521,7 @@ class OuroborosRIBReader:
         with open(path, encoding='utf-8') as f:
             _current_cube = ''
             ret['fd'] = fd
+
             for line in [_l for _l in f.readlines() if _l != '\n']:
                 if 'Endpoint address' in line:
                     ret['endpoint'] = (
@@ -567,7 +553,7 @@ class OuroborosRIBReader:
         """
         Get flow info for all Data Transfer (N-1) flows in an IPCP.
         :param ipcp_name: name of the IPCP
-        :return: flow information for the data transfer flows
+        :return: list of dicts with per-flow information
         """
 
         flow_info = []
@@ -584,16 +570,15 @@ class OuroborosRIBReader:
     def get_frct_info_for_process(self,
                                   process_name: str) -> list[dict]:
         """
-        Get the frct information for all flows for a process.
+        Get the FRCT information for all flows of a process.
         :param process_name: name of the process
-        :return: flow information for the N-1 flows
+        :return: list of dicts with per-flow FRCT information
         """
 
         frct_info = []
 
         flow_descriptors = self._get_flows_for_process(
             process_name)
-
         for flow in flow_descriptors:
             info = self._get_frct_info_for_process_flow(
                 process_name, flow)
@@ -601,20 +586,11 @@ class OuroborosRIBReader:
 
         return frct_info
 
-    # pylint: disable-msg=too-many-arguments,too-many-positional-arguments
     def get_ipcp_list(self,
-                      names_only: bool = False,
-                      types: bool = True,
-                      states: bool = True,
-                      layers: bool = True,
-                      flows: bool = True) -> list[dict]:
+                      names_only: bool = False) -> list[dict]:
         """
         Get a list of all IPCPs.
         :param names_only: only return IPCP names and layer names
-        :param types: return IPCP type
-        :param states: return IPCP state
-        :param layers: return layer the IPCP is enrolled in
-        :param flows: return number of allocated (N+1) flows
         :return: list of dicts containing IPCP info
         """
 
@@ -623,50 +599,49 @@ class OuroborosRIBReader:
         if not os.path.exists(self.rib_path):
             return []
 
-        for ipcp_dir in [f.path for f in os.scandir(self.rib_path)
-                         if f.is_dir()
-                         and not f.name.startswith('proc.')]:
-            ipcp_name = os.path.split(ipcp_dir)[-1]
+        for entry in os.scandir(self.rib_path):
+            if not entry.is_dir() or entry.name.startswith('proc.'):
+                continue
+
+            ipcp_name = os.path.split(entry.path)[-1]
             ipcp_type = None
             ipcp_state = None
-            ipcp_layer = (self._get_layer_name_for_ipcp(ipcp_name)
-                          if layers else None)
             ipcp_flows = None
+            n_flows = None
+
+            ipcp_layer = self._get_layer_name_for_ipcp(ipcp_name)
+
             if not names_only:
-                ipcp_type = (
-                    self._get_ipcp_type_for_ipcp(ipcp_name)
-                    if types else None)
-                ipcp_state = (
-                    self._get_ipcp_state_for_ipcp(ipcp_name)
-                    if states else None)
-                ipcp_flows = (
-                    self._get_n_plus_1_flows_for_ipcp(ipcp_name)
-                    if flows else None)
+                ipcp_type = self._get_ipcp_type_for_ipcp(ipcp_name)
+                ipcp_state = self._get_ipcp_state_for_ipcp(ipcp_name)
+                ipcp_flows = self._get_n_plus_1_flows_for_ipcp(ipcp_name)
+
+            if ipcp_flows:
+                n_flows = len(ipcp_flows)
 
             ipcp_list += [{
                 'name': ipcp_name,
                 'type': ipcp_type,
                 'state': ipcp_state,
                 'layer': ipcp_layer,
-                'flows': (len(ipcp_flows)
-                          if ipcp_flows else None)}]
+                'flows': n_flows}]
+
         return ipcp_list
-    # pylint: enable-msg=too-many-arguments,too-many-positional-arguments
 
     def get_process_list(self) -> list[str]:
         """
-        Get a list of all Ouroboros applications exposing frct stats.
+        Get a list of all Ouroboros application processes in the RIB.
         :return: list of process names ("proc.<pid>")
         """
+
         proc_list = []
 
         if not os.path.exists(self.rib_path):
             return []
 
-        for proc in [f.name for f in os.scandir(self.rib_path)
-                     if f.is_dir()
-                     and f.name.startswith('proc.')]:
-            proc_list += [proc]
+        for entry in os.scandir(self.rib_path):
+            if entry.is_dir() and entry.name.startswith('proc.'):
+                proc_list += [entry.name]
 
         return proc_list
 
@@ -675,16 +650,21 @@ class OuroborosRIBReader:
 
         path = os.path.join(self._get_dir_for_ipcp(ipcp_name),
                             'eth')
-
         if not os.path.exists(path):
             return []
 
+        eth_flows = []
+
         try:
-            return [f.name for f in os.scandir(path)
-                    if f.name != 'summary']
+            for entry in os.scandir(path):
+                if entry.name != 'summary':
+                    eth_flows += [entry.name]
         except IOError as e:
             print(e)
+
             return []
+
+        return eth_flows
 
     def get_eth_summary_for_ipcp(self,
                                  ipcp_name: str) -> dict:
@@ -724,6 +704,7 @@ class OuroborosRIBReader:
             with open(path, encoding='utf-8') as f:
                 for line in f.readlines():
                     split_line = line.split(':')
+
                     phrase = split_line[0]
                     if phrase not in str_to_metric:
                         continue
@@ -760,6 +741,7 @@ class OuroborosRIBReader:
             with open(path, encoding='utf-8') as f:
                 for line in f.readlines():
                     split_line = line.split(':')
+
                     phrase = split_line[0]
                     if phrase not in str_to_metric:
                         continue

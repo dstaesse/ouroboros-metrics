@@ -3,17 +3,14 @@
 A collection of observability tools for exporting and
 visualising metrics collected from Ouroboros.
 
-Currently has one very simple exporter that can push metrics to
-InfluxDB or write them as InfluxDB line protocol to a local file,
-and provides additional visualization via grafana.
-
-More features will be added over time.
+The exporter pushes metrics to InfluxDB or writes them as InfluxDB
+line protocol to a local file, and provides additional visualization
+via grafana.
 
 ## Requirements:
 
-The influxdb-client Python package is always required (used for
-point construction and line protocol serialization in both modes).
-It is installed automatically via `pip install .`
+The influxdb-client Python package is required in both modes. It is
+installed automatically via `pip install .`
 
 InfluxDB OSS 2.0, https://docs.influxdata.com/influxdb/v2.0/
 (only required when pushing metrics directly to InfluxDB, not
@@ -68,33 +65,32 @@ pip install .
 Edit the config.ini.example file and fill out the InfluxDB
 information (token, org). Save it as config.ini.
 
-Run oexport.py:
+Run oexport:
 
 ```
-python oexport.py
+oexport
 ```
 
 Extra tags can be added to every metric:
 
 ```
-python oexport.py --tag env=production --tag region=eu
+oexport --tag env=production --tag region=eu
 ```
 
 ### File mode
 
-Write metrics as InfluxDB line protocol to a local file instead of
+Write metrics as InfluxDB line protocol to a local file, without
 pushing to a running InfluxDB instance. This requires no InfluxDB
 connection and no config.ini:
 
 ```
-python oexport.py --output-file metrics.lp
+oexport --output-file metrics.lp
 ```
 
-Tags can be injected in file mode as well, which is useful for
-stamping metrics with a test name and run identifier:
+Tags can be injected in file mode as well:
 
 ```
-python oexport.py --output-file metrics.lp \
+oexport --output-file metrics.lp \
     --tag test=oping_unimpaired \
     --tag run=20260401_143022
 ```
@@ -109,9 +105,10 @@ influx write --bucket ouroboros-metrics --file metrics.lp
 
 | Flag                | Description                                     |
 |---------------------|-------------------------------------------------|
-| `-i, --interval`    | Collection interval in milliseconds (default: 1000) |
-| `-b, --bucket`      | InfluxDB bucket name (default: ouroboros-metrics) |
-| `-o, --output-file` | Write line protocol to file instead of InfluxDB |
+| `-i, --interval`    | FRCT interval, ms (default: 1000)               |
+| `--slow-interval`   | IPCP/LSDB/DHT/FA/DT interval, ms                |
+| `-b, --bucket`      | InfluxDB bucket (default: ouroboros-metrics)    |
+| `-o, --output-file` | Write InfluxDB line protocol to a file          |
 | `-t, --tag`         | Extra tag as key=value (repeatable)             |
 | `-c, --config`      | Path to config.ini (default: ./config.ini)      |
 | `--url`             | InfluxDB server URL                             |

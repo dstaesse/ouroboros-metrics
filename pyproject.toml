@@ -1,14 +1,16 @@
+# SPDX-FileCopyrightText: 2021 - 2026 Dimitri Staessens
+# SPDX-License-Identifier: BSD-3-Clause
+
 [project]
 name = "ouroboros-metrics"
 dynamic = ["version"]
-dependencies = [
-    "influxdb-client[ciso]",
-    "pytz",
-]
+dependencies = ["influxdb-client[ciso]", "pytz"]
+
+[project.scripts]
+oexport = "oexport:main"
 
 [tool.setuptools]
-py-modules = ["ribreader"]
-script-files = ["oexport.py"]
+py-modules = ["ribreader", "oexport"]
 
 [build-system]
 requires = ["setuptools>=64", "setuptools_scm>=8"]
