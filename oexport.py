@@ -18,7 +18,9 @@ import os
 import socket
 import struct
 import sys
+import threading
 import time
+import traceback
 import argparse
 import configparser
 from abc import ABC, abstractmethod
@@ -194,6 +196,7 @@ class FileWriter(MetricsWriter):
                  tags: dict = None) -> None:
 
         self._tags = tags or {}
+        self._lock = threading.Lock()
         self._file = open(path, 'a', encoding='utf-8')  # pylint: disable=consider-using-with
 
     def write(self, bucket: str, record: Point) -> None:
@@ -202,8 +205,11 @@ class FileWriter(MetricsWriter):
 
         record = record.tag('system', socket.gethostname())
 
-        self._file.write(record.to_line_protocol() + '\n')
-        self._file.flush()
+        line = record.to_line_protocol() + '\n'
+
+        with self._lock:
+            self._file.write(line)
+            self._file.flush()
 
     def close(self) -> None:
         self._file.close()
@@ -226,7 +232,7 @@ class OuroborosExporter:
     def __exit__(self,
                  _type: type[BaseException] | None,
                  value: BaseException | None,
-                 traceback: TracebackType | None) -> None:
+                 _traceback: TracebackType | None) -> None:
         self.writer.close()
 
     def _write_ouroboros_ipcps_total(self,
@@ -409,6 +415,29 @@ class OuroborosExporter:
             self.writer.write(bucket=self.bucket,
                               record=Point.from_dict(point))
 
+    def _write_ouroboros_poa_metric(self,
+                                    now: str,
+                                    metric: str,
+                                    poa: str,
+                                    ipcp_name: str,
+                                    layer: str,
+                                    value) -> None:
+        point = {
+            'measurement': f'ouroboros_poa_{metric}',
+            'tags': {
+                'ipcp': ipcp_name,
+                'layer': layer,
+                'poa': poa,
+            },
+            'fields': {
+                metric: value,
+            },
+            'time': now,
+        }
+
+        self.writer.write(bucket=self.bucket,
+                          record=Point.from_dict(point))
+
     def _write_ouroboros_process_frct_metric(self,
                                              now: str,
                                              metric: str,
@@ -430,49 +459,6 @@ class OuroborosExporter:
         self.writer.write(bucket=self.bucket,
                           record=Point.from_dict(point))
 
-    def _write_ouroboros_eth_summary_metric(self,
-                                            now: str,
-                                            metric: str,
-                                            ipcp_name: str,
-                                            layer: str,
-                                            value: Any) -> None:
-        point = {
-            'measurement': f'ouroboros_eth_{metric}',
-            'tags': {
-                'ipcp': ipcp_name,
-                'layer': layer,
-            },
-            'fields': {
-                metric: value,
-            },
-            'time': now,
-        }
-
-        self.writer.write(bucket=self.bucket,
-                          record=Point.from_dict(point))
-
-    def _write_ouroboros_eth_flow_metric(self,
-                                         now: str,
-                                         metric: str,
-                                         fd: str,
-                                         ipcp_name: str,
-                                         layer: str,
-                                         value: Any) -> None:
-        point = {
-            'measurement': f'ouroboros_eth_flow_{metric}',
-            'tags': {
-                'ipcp': ipcp_name,
-                'layer': layer,
-                'flow_descriptor': fd,
-            },
-            'fields': {
-                metric: value,
-            },
-            'time': now,
-        }
-
-        self.writer.write(bucket=self.bucket,
-                          record=Point.from_dict(point))
     # pylint: enable=too-many-arguments,too-many-positional-arguments
 
     @staticmethod
@@ -529,13 +515,17 @@ class OuroborosExporter:
         for ipcp in ipcps:
             flows = self.ribreader.get_flow_allocator_flow_info_for_ipcp(ipcp['name'])
             for flow in flows:
+                eid = flow.get('endpoint_id')
+                if eid is None:
+                    continue
+
                 for metric, value in flow.items():
                     if metric == 'endpoint_id':
                         continue
 
                     self._write_ouroboros_fa_congestion_metric(
                         metric, str(now), ipcp['name'],
-                        flow['endpoint_id'], ipcp['layer'], value)
+                        eid, ipcp['layer'], value)
 
             rates = _fairness_rates(flows)
             if len(rates) >= 2:
@@ -612,42 +602,75 @@ class OuroborosExporter:
                         str(now), metric, frct_info['fd'],
                         process, value)
 
-    def _export_ouroboros_eth_metrics(self) -> None:
+    def _export_ouroboros_poa_metrics(self) -> None:
         ipcps = self.ribreader.get_ipcp_list(names_only=True)
 
         now = datetime.now(utc)
 
         for ipcp in ipcps:
-            summary = self.ribreader.get_eth_summary_for_ipcp(
-                ipcp['name'])
-            for metric, value in summary.items():
-                self._write_ouroboros_eth_summary_metric(
-                    str(now), metric, ipcp['name'],
-                    ipcp['layer'], value)
-
-            flows = self.ribreader.get_eth_flow_info_for_ipcp(
-                ipcp['name'])
-            for flow in flows:
-                for metric, value in flow.items():
-                    if metric == 'fd':
-                        continue
-                    self._write_ouroboros_eth_flow_metric(
-                        str(now), metric, flow['fd'],
+            poas = self.ribreader.get_poa_stats_for_ipcp(ipcp['name'])
+            for poa, stats in poas.items():
+                for metric, value in stats.items():
+                    self._write_ouroboros_poa_metric(
+                        str(now), metric, poa,
                         ipcp['name'], ipcp['layer'], value)
+
+    def _safe_export(self, step: Any) -> None:
+        """
+        Run one export step, reporting a failure instead of raising.
+
+        The RIB is a live filesystem: entries appear and vanish while it
+        is walked, and a read can fail on a component that is shutting
+        down. An exception escaping one step would end the process and
+        with it every other series, so each step is fenced off.
+        """
+
+        try:
+            step()
+        except Exception:  # pylint: disable=broad-except
+            print(f'{step.__name__} failed:', file=sys.stderr)
+            traceback.print_exc()
+            sys.stderr.flush()
 
     def export(self) -> None:
         """
         Export all available metrics
         """
 
-        self._export_ouroboros_ipcps_total()
-        self._export_ouroboros_flow_allocator_flows_total()
-        self._export_ouroboros_fa_congestion_metrics()
-        self._export_ouroboros_lsdb_metrics()
-        self._export_ouroboros_dht_metrics()
-        self._export_ouroboros_data_transfer_metrics()
-        self._export_ouroboros_eth_metrics()
-        self._export_ouroboros_process_frct_metrics()
+        self._safe_export(self._export_ouroboros_ipcps_total)
+        self._safe_export(self._export_ouroboros_flow_allocator_flows_total)
+        self._safe_export(self._export_ouroboros_fa_congestion_metrics)
+        self._safe_export(self._export_ouroboros_lsdb_metrics)
+        self._safe_export(self._export_ouroboros_dht_metrics)
+        self._safe_export(self._export_ouroboros_data_transfer_metrics)
+        self._safe_export(self._export_ouroboros_poa_metrics)
+
+    def export_frct(self) -> None:
+        """
+        Export the per-flow FRCT metrics of every application process.
+        """
+
+        self._safe_export(self._export_ouroboros_process_frct_metrics)
+
+    def _loop(self,
+              interval_ms: float,
+              step: Any) -> None:
+        """
+        Call *step* every *interval_ms* until the process exits.
+        """
+
+        if _libc is None:
+            while True:
+                time.sleep(interval_ms / 1000.0)
+                step()
+
+        tfd = _make_timerfd(int(interval_ms * 1_000_000))
+        try:
+            while True:
+                os.read(tfd, 8)
+                step()
+        finally:
+            os.close(tfd)
 
     def run(self,
             interval_ms: float = 1000,
@@ -658,36 +681,20 @@ class OuroborosExporter:
         :param interval_ms: FRCT poll interval in milliseconds
         :param slow_interval_ms: interval for all other metrics (IPCP,
             LSDB, DHT, FA, DT) in milliseconds
+
+        The two cadences run on separate threads. The IPCP walk reads
+        one FUSE filesystem per IPCP, each served by a single-threaded
+        loop in that daemon; a read that stalls there must not take the
+        FRCT series with it.
         """
 
-        slow_every = max(1, round(slow_interval_ms / interval_ms))
-        tick = 0
+        slow = threading.Thread(target=self._loop,
+                                args=(slow_interval_ms, self.export),
+                                daemon=True)
 
-        interval_ns = int(interval_ms * 1_000_000)
+        slow.start()
 
-        if _libc is not None:
-            tfd = _make_timerfd(interval_ns)
-            try:
-                while True:
-                    os.read(tfd, 8)
-
-                    if tick % slow_every == 0:
-                        self.export()
-                    else:
-                        self._export_ouroboros_process_frct_metrics()
-                    tick += 1
-            finally:
-                os.close(tfd)
-        else:
-            while True:
-                time.sleep(interval_ms / 1000.0)
-
-                if tick % slow_every == 0:
-                    self.export()
-                else:
-                    self._export_ouroboros_process_frct_metrics()
-
-                tick += 1
+        self._loop(interval_ms, self.export_frct)
 
 
 def _parse_args() -> argparse.Namespace:

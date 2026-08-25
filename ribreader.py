@@ -13,21 +13,12 @@ import os
 import re
 from typing import Optional
 
-IPCP_TYPE_UNICAST = 'unicast'
-IPCP_TYPE_BROADCAST = 'broadcast'
-IPCP_TYPE_UDP = 'udp'
-IPCP_TYPE_ETH_DIX = 'eth-dix'
-IPCP_TYPE_ETH_LLC = 'eth-llc'
-IPCP_TYPE_LOCAL = 'local'
-IPCP_TYPE_UNKNOWN = 'unknown'
+IPCP_TYPE_UNICAST = "unicast"
+IPCP_TYPE_BROADCAST = "broadcast"
+IPCP_TYPE_LOCAL = "local"
+IPCP_TYPE_UNKNOWN = "unknown"
 
-IPCP_TYPES = [IPCP_TYPE_UNICAST,
-              IPCP_TYPE_BROADCAST,
-              IPCP_TYPE_UDP,
-              IPCP_TYPE_ETH_DIX,
-              IPCP_TYPE_ETH_LLC,
-              IPCP_TYPE_LOCAL,
-              IPCP_TYPE_UNKNOWN]
+IPCP_TYPES = [IPCP_TYPE_UNICAST, IPCP_TYPE_BROADCAST, IPCP_TYPE_LOCAL, IPCP_TYPE_UNKNOWN]
 
 IPCP_STATE_NULL = 'null'
 IPCP_STATE_INIT = 'init'
@@ -304,6 +295,7 @@ class OuroborosRIBReader:
 
         str_to_metric = {
             'Local endpoint ID': 'endpoint_id',
+            'Local PoA ID': 'endpoint_id',
             'Sent (packets)': 'sent_pkts_total',
             'Sent (bytes)': 'sent_bytes_total',
             'Send failed (packets)': 'send_failed_packets_total',
@@ -434,6 +426,7 @@ class OuroborosRIBReader:
             '  bail (unowned)': 'rxm_due_unowned',
             '  bail (aged)': 'rxm_due_aged',
             '  bail (defer)': 'rxm_due_defer',
+            '  defer, no rxm at HoL': 'rxm_hol_gone',
             'RXM-arm malloc failures': 'rxm_arm_fail',
             'RXM cancels (teardown)': 'rxm_cancel',
             'RXM tx into dead flow': 'rxm_tx_dead',
@@ -628,6 +621,76 @@ class OuroborosRIBReader:
 
         return ipcp_list
 
+    def _get_poas_for_ipcp(self, ipcp_name: str) -> list[str]:
+
+        path = os.path.join(self._get_dir_for_ipcp(ipcp_name), "poa")
+        if not os.path.exists(path):
+            return []
+
+        try:
+            return [entry.name for entry in os.scandir(path)]
+        except IOError as e:
+            print(e)
+
+            return []
+
+    def get_poa_stats_for_ipcp(self, ipcp_name: str) -> dict:
+        """
+        Get the transport statistics of each PoA of an IPCP.
+        :param ipcp_name: name of the IPCP
+        :return: {poa name: {metric: value}}
+        """
+
+        str_to_metric = {
+            "Active flows": "n_flows",
+            "Packets received": "n_rcv",
+            "Bytes received": "n_rcv_bytes",
+            "Packets sent": "n_snd",
+            "Bytes sent": "n_snd_bytes",
+            "Management frames rcvd": "n_mgmt_rcv",
+            "Management frames sent": "n_mgmt_snd",
+            "Bad EID packets": "n_bad_id",
+            "Delivery (N+1) failures": "n_dlv_f",
+            "Buffer alloc failures": "n_buf_f",
+            "Packet read failures": "n_rcv_f",
+            "Packet send failures": "n_snd_f",
+            "Name queries sent": "n_qry_snd",
+            "Name queries received": "n_qry_rcv",
+            "Name replies sent": "n_rep_snd",
+            "Name replies received": "n_rep_rcv",
+            "Socket sndbuf (bytes)": "sock_sndbuf",
+            "Socket rcvbuf (bytes)": "sock_rcvbuf",
+            "Queued (bytes)": "qlen_bytes",
+            "Queued (packets)": "qlen_pkts",
+            "Mean packet cost (bytes)": "avg_len",
+            "Mean packet size (bytes)": "avg_len",
+            "Kernel packets received": "kern_rcv",
+            "Kernel packets dropped": "kern_drp",
+        }
+
+        ret = {}
+
+        for poa in self._get_poas_for_ipcp(ipcp_name):
+            path = os.path.join(self._get_dir_for_ipcp(ipcp_name), "poa", poa)
+            stats = {}
+
+            try:
+                with open(path, encoding="utf-8") as f:
+                    for line in f.readlines():
+                        split_line = line.split(":")
+
+                        phrase = split_line[0].strip()
+                        if phrase not in str_to_metric:
+                            continue
+                        stats[str_to_metric[phrase]] = self._get_trailing_number(split_line[-1])
+            except IOError:
+                continue
+
+            if stats:
+                ret[poa] = stats
+
+        return ret
+
     def get_process_list(self) -> list[str]:
         """
         Get a list of all Ouroboros application processes in the RIB.
@@ -640,134 +703,7 @@ class OuroborosRIBReader:
             return []
 
         for entry in os.scandir(self.rib_path):
-            if entry.is_dir() and entry.name.startswith('proc.'):
+            if entry.is_dir() and entry.name.startswith("proc."):
                 proc_list += [entry.name]
 
         return proc_list
-
-    def _get_eth_flows_for_ipcp(self,
-                                ipcp_name: str) -> list[str]:
-
-        path = os.path.join(self._get_dir_for_ipcp(ipcp_name),
-                            'eth')
-        if not os.path.exists(path):
-            return []
-
-        eth_flows = []
-
-        try:
-            for entry in os.scandir(path):
-                if entry.name != 'summary':
-                    eth_flows += [entry.name]
-        except IOError as e:
-            print(e)
-
-            return []
-
-        return eth_flows
-
-    def get_eth_summary_for_ipcp(self,
-                                 ipcp_name: str) -> dict:
-        """
-        Get summary statistics for the eth IPCP.
-        :param ipcp_name: name of the IPCP
-        :return: statistics in a dict
-        """
-
-        str_to_metric = {
-            'Active flows': 'n_flows',
-            'Total frames received': 'n_rcv',
-            'Total frames sent': 'n_snd',
-            'Management frames received': 'n_mgmt_rcv',
-            'Management frames sent': 'n_mgmt_snd',
-            'Bad EID/SAP frames': 'n_bad_id',
-            'Delivery (N+1) failures': 'n_dlv_f',
-            'Buffer alloc failures': 'n_buf_f',
-            'Frame read failures': 'n_rcv_f',
-            'Frame send failures': 'n_snd_f',
-            'Socket rcvbuf (bytes)': 'sock_rcvbuf',
-            'Socket sndbuf (bytes)': 'sock_sndbuf',
-            'Socket ingress (bytes)': 'sock_ingress',
-            'Socket egress (bytes)': 'sock_egress',
-            'Kernel frames received': 'kern_rcv',
-            'Kernel frames dropped': 'kern_drp',
-        }
-
-        path = os.path.join(self._get_dir_for_ipcp(ipcp_name),
-                            'eth', 'summary')
-        if not os.path.exists(path):
-            return {}
-
-        ret = {}
-
-        try:
-            with open(path, encoding='utf-8') as f:
-                for line in f.readlines():
-                    split_line = line.split(':')
-
-                    phrase = split_line[0]
-                    if phrase not in str_to_metric:
-                        continue
-                    metric = str_to_metric[phrase]
-                    value = self._get_trailing_number(
-                        split_line[1])
-                    ret[metric] = value
-        except IOError:
-            pass
-
-        return ret
-
-    def _get_eth_flow_info(self,
-                           ipcp_name: str,
-                           fd: str) -> dict:
-
-        str_to_metric = {
-            'Sent (packets)': 'p_snd',
-            'Sent (bytes)': 'b_snd',
-            'Send failed (packets)': 'p_snd_f',
-            'Received (packets)': 'p_rcv',
-            'Received (bytes)': 'b_rcv',
-            'Delivery (N+1) failures': 'p_dlv_f',
-        }
-
-        path = os.path.join(self._get_dir_for_ipcp(ipcp_name),
-                            'eth', fd)
-        if not os.path.exists(path):
-            return {}
-
-        ret = {'fd': fd}
-
-        try:
-            with open(path, encoding='utf-8') as f:
-                for line in f.readlines():
-                    split_line = line.split(':')
-
-                    phrase = split_line[0]
-                    if phrase not in str_to_metric:
-                        continue
-                    metric = str_to_metric[phrase]
-                    value = self._get_trailing_number(
-                        split_line[1])
-                    ret[metric] = value
-        except IOError:
-            pass
-
-        return ret
-
-    def get_eth_flow_info_for_ipcp(self,
-                                   ipcp_name: str
-                                   ) -> list[dict]:
-        """
-        Get flow info for all flows in an eth IPCP.
-        :param ipcp_name: name of the IPCP
-        :return: list of dicts with per-flow statistics
-        """
-
-        flow_info = []
-
-        for fd in self._get_eth_flows_for_ipcp(ipcp_name):
-            info = self._get_eth_flow_info(ipcp_name, fd)
-            if info:
-                flow_info += [info]
-
-        return flow_info

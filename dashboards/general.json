@@ -130,7 +130,7 @@
             "type": "influxdb",
             "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
           },
-          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_broadcast_ipcps_total\" or r[\"_measurement\"] == \"ouroboros_eth-dix_ipcps_total\" or r[\"_measurement\"] == \"ouroboros_eth-llc_ipcps_total\" or r[\"_measurement\"] == \"ouroboros_local_ipcps_total\" or r[\"_measurement\"] == \"ouroboros_udp_ipcps_total\" or r[\"_measurement\"] == \"ouroboros_unicast_ipcps_total\" or r[\"_measurement\"] == \"ouroboros_unknown_ipcps_total\")\n  |> filter(fn: (r) => r[\"_field\"] == \"ipcps\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"type\"], set: ${_type:json}))\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+          "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_broadcast_ipcps_total\" or r[\"_measurement\"] == \"ouroboros_local_ipcps_total\" or r[\"_measurement\"] == \"ouroboros_unicast_ipcps_total\" or r[\"_measurement\"] == \"ouroboros_unknown_ipcps_total\")\n  |> filter(fn: (r) => r[\"_field\"] == \"ipcps\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"type\"], set: ${_type:json}))\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
           "refId": "A"
         }
       ],
@@ -13238,6 +13238,1046 @@
       ],
       "title": "Heartbeat RTT samples/s",
       "type": "timeseries"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 280
+      },
+      "id": 227,
+      "panels": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMin": 0,
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 2,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "displayName": "${__field.labels.ipcp},${__field.labels.poa}",
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "bytes"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 10,
+            "w": 6,
+            "x": 0,
+            "y": 281
+          },
+          "id": 219,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "11.6.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
+              },
+              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_poa_qlen_bytes\")\n  |> filter(fn: (r) => r[\"_field\"] == \"qlen_bytes\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+              "refId": "A"
+            }
+          ],
+          "title": "PoA queue depth (bytes)",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMin": 0,
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 2,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "displayName": "${__field.labels.ipcp},${__field.labels.poa}",
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 10,
+            "w": 6,
+            "x": 6,
+            "y": 281
+          },
+          "id": 220,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "11.6.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
+              },
+              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_poa_qlen_pkts\")\n  |> filter(fn: (r) => r[\"_field\"] == \"qlen_pkts\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+              "refId": "A"
+            }
+          ],
+          "title": "PoA queue depth (packets)",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMin": 0,
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 2,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "displayName": "${__field.labels.ipcp},${__field.labels.poa},${__field.name}",
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "bytes"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 10,
+            "w": 6,
+            "x": 12,
+            "y": 281
+          },
+          "id": 221,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "11.6.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
+              },
+              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_poa_sock_sndbuf\")\n  |> filter(fn: (r) => r[\"_field\"] == \"sock_sndbuf\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
+              },
+              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_poa_sock_rcvbuf\")\n  |> filter(fn: (r) => r[\"_field\"] == \"sock_rcvbuf\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+              "refId": "B"
+            }
+          ],
+          "title": "PoA socket buffers",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMin": 0,
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 2,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "displayName": "${__field.labels.ipcp},${__field.labels.poa}",
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "bytes"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 10,
+            "w": 6,
+            "x": 18,
+            "y": 281
+          },
+          "id": 222,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "11.6.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
+              },
+              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_poa_avg_len\")\n  |> filter(fn: (r) => r[\"_field\"] == \"avg_len\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+              "refId": "A"
+            }
+          ],
+          "title": "PoA mean packet cost",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMin": 0,
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 2,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "displayName": "${__field.labels.ipcp},${__field.labels.poa}",
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "bps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 10,
+            "w": 6,
+            "x": 0,
+            "y": 291
+          },
+          "id": 223,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "11.6.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
+              },
+              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_poa_n_snd_bytes\")\n  |> filter(fn: (r) => r[\"_field\"] == \"n_snd_bytes\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> map(fn: (r) => ({ r with _value: float(v: r._value) * 8.0}))\n  |> derivative(unit: 1s)\n  |> aggregateWindow(every: ${_interval}, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
+              "refId": "A"
+            }
+          ],
+          "title": "PoA upstream bandwidth",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMin": 0,
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 2,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "displayName": "${__field.labels.ipcp},${__field.labels.poa}",
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "bps"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 10,
+            "w": 6,
+            "x": 6,
+            "y": 291
+          },
+          "id": 224,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "11.6.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
+              },
+              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_poa_n_rcv_bytes\")\n  |> filter(fn: (r) => r[\"_field\"] == \"n_rcv_bytes\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> map(fn: (r) => ({ r with _value: float(v: r._value) * 8.0}))\n  |> derivative(unit: 1s)\n  |> aggregateWindow(every: ${_interval}, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")",
+              "refId": "A"
+            }
+          ],
+          "title": "PoA downstream bandwidth",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMin": 0,
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 2,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "displayName": "${__field.labels.ipcp},${__field.labels.poa},${__field.name}",
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 10,
+            "w": 6,
+            "x": 12,
+            "y": 291
+          },
+          "id": 225,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "11.6.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
+              },
+              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_poa_n_bad_id\")\n  |> filter(fn: (r) => r[\"_field\"] == \"n_bad_id\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
+              },
+              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_poa_n_dlv_f\")\n  |> filter(fn: (r) => r[\"_field\"] == \"n_dlv_f\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+              "refId": "B"
+            },
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
+              },
+              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_poa_n_buf_f\")\n  |> filter(fn: (r) => r[\"_field\"] == \"n_buf_f\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+              "refId": "C"
+            },
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
+              },
+              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_poa_n_rcv_f\")\n  |> filter(fn: (r) => r[\"_field\"] == \"n_rcv_f\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+              "refId": "D"
+            },
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
+              },
+              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_poa_n_snd_f\")\n  |> filter(fn: (r) => r[\"_field\"] == \"n_snd_f\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+              "refId": "E"
+            }
+          ],
+          "title": "PoA packet failures",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMin": 0,
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 2,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "displayName": "${__field.labels.ipcp},${__field.labels.poa}",
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 10,
+            "w": 6,
+            "x": 18,
+            "y": 291
+          },
+          "id": 226,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "11.6.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
+              },
+              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_poa_kern_drp\")\n  |> filter(fn: (r) => r[\"_field\"] == \"kern_drp\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+              "refId": "A"
+            }
+          ],
+          "title": "PoA kernel packets dropped",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMin": 0,
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 2,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "displayName": "${__field.labels.ipcp},${__field.labels.poa},${__field.name}",
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 10,
+            "w": 6,
+            "x": 0,
+            "y": 301
+          },
+          "id": 228,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "11.6.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
+              },
+              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_poa_n_qry_snd\")\n  |> filter(fn: (r) => r[\"_field\"] == \"n_qry_snd\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
+              },
+              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_poa_n_qry_rcv\")\n  |> filter(fn: (r) => r[\"_field\"] == \"n_qry_rcv\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+              "refId": "B"
+            }
+          ],
+          "title": "PoA name queries",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
+          },
+          "description": "",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisBorderShow": false,
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMin": 0,
+                "barAlignment": 0,
+                "barWidthFactor": 0.6,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "insertNulls": false,
+                "lineInterpolation": "linear",
+                "lineWidth": 1,
+                "pointSize": 2,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "off"
+                }
+              },
+              "displayName": "${__field.labels.ipcp},${__field.labels.poa},${__field.name}",
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              },
+              "unit": "short"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 10,
+            "w": 6,
+            "x": 6,
+            "y": 301
+          },
+          "id": 229,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "hideZeros": false,
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "pluginVersion": "11.6.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
+              },
+              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_poa_n_rep_snd\")\n  |> filter(fn: (r) => r[\"_field\"] == \"n_rep_snd\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "influxdb",
+                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
+              },
+              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_poa_n_rep_rcv\")\n  |> filter(fn: (r) => r[\"_field\"] == \"n_rep_rcv\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+              "refId": "B"
+            }
+          ],
+          "title": "PoA name replies",
+          "type": "timeseries"
+        }
+      ],
+      "title": "PoA transport",
+      "type": "row"
     }
   ],
   "preload": false,
