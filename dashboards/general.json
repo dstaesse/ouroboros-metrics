@@ -39,7 +39,10 @@
       "id": 8,
       "panels": [],
       "title": "System",
-      "type": "row"
+      "type": "row",
+      "fieldConfig": {
+        "defaults": {}
+      }
     },
     {
       "datasource": {
@@ -243,7 +246,10 @@
       "id": 31,
       "panels": [],
       "title": "Link State Database",
-      "type": "row"
+      "type": "row",
+      "fieldConfig": {
+        "defaults": {}
+      }
     },
     {
       "datasource": {
@@ -538,7 +544,10 @@
       "id": 95,
       "panels": [],
       "title": "DHT",
-      "type": "row"
+      "type": "row",
+      "fieldConfig": {
+        "defaults": {}
+      }
     },
     {
       "datasource": {
@@ -821,7 +830,10 @@
       "id": 18,
       "panels": [],
       "title": "IPCP N+1 flows",
-      "type": "row"
+      "type": "row",
+      "fieldConfig": {
+        "defaults": {}
+      }
     },
     {
       "datasource": {
@@ -1612,7 +1624,10 @@
       "id": 88,
       "panels": [],
       "title": "N+1 flow management",
-      "type": "row"
+      "type": "row",
+      "fieldConfig": {
+        "defaults": {}
+      }
     },
     {
       "datasource": {
@@ -1669,7 +1684,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "displayName": "${__field.labels.ipcp}, ${__field.labels.flow_id}"
         },
         "overrides": []
       },
@@ -1762,7 +1778,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "displayName": "${__field.labels.ipcp}, ${__field.labels.flow_id}"
         },
         "overrides": []
       },
@@ -1855,7 +1872,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "displayName": "${__field.labels.ipcp}, ${__field.labels.flow_id}"
         },
         "overrides": []
       },
@@ -1948,7 +1966,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "displayName": "${__field.labels.ipcp}, ${__field.labels.flow_id}"
         },
         "overrides": []
       },
@@ -1997,7 +2016,10 @@
       "id": 10,
       "panels": [],
       "title": "IPCP Congestion avoidance",
-      "type": "row"
+      "type": "row",
+      "fieldConfig": {
+        "defaults": {}
+      }
     },
     {
       "datasource": {
@@ -2833,7 +2855,10 @@
       "id": 39,
       "panels": [],
       "title": "IPCP Data Transfer - Local Components",
-      "type": "row"
+      "type": "row",
+      "fieldConfig": {
+        "defaults": {}
+      }
     },
     {
       "datasource": {
@@ -2893,7 +2918,8 @@
               }
             ]
           },
-          "unit": "binBps"
+          "unit": "binBps",
+          "displayName": "${__field.labels.ipcp}"
         },
         "overrides": []
       },
@@ -2987,7 +3013,8 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "none",
+          "displayName": "${__field.labels.ipcp}"
         },
         "overrides": []
       },
@@ -3080,7 +3107,8 @@
               }
             ]
           },
-          "unit": "bytes"
+          "unit": "bytes",
+          "displayName": "${__field.labels.ipcp}"
         },
         "overrides": []
       },
@@ -3172,7 +3200,8 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "none",
+          "displayName": "${__field.labels.ipcp}"
         },
         "overrides": []
       },
@@ -3264,7 +3293,8 @@
               }
             ]
           },
-          "unit": "binBps"
+          "unit": "binBps",
+          "displayName": "${__field.labels.ipcp}"
         },
         "overrides": []
       },
@@ -3356,7 +3386,8 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "none",
+          "displayName": "${__field.labels.ipcp}"
         },
         "overrides": []
       },
@@ -3448,7 +3479,8 @@
               }
             ]
           },
-          "unit": "bytes"
+          "unit": "bytes",
+          "displayName": "${__field.labels.ipcp}"
         },
         "overrides": []
       },
@@ -3540,7 +3572,8 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "none",
+          "displayName": "${__field.labels.ipcp}"
         },
         "overrides": []
       },
@@ -3632,7 +3665,8 @@
               }
             ]
           },
-          "unit": "binBps"
+          "unit": "binBps",
+          "displayName": "${__field.labels.ipcp}"
         },
         "overrides": []
       },
@@ -3724,7 +3758,8 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "none",
+          "displayName": "${__field.labels.ipcp}"
         },
         "overrides": []
       },
@@ -3816,7 +3851,8 @@
               }
             ]
           },
-          "unit": "bytes"
+          "unit": "bytes",
+          "displayName": "${__field.labels.ipcp}"
         },
         "overrides": []
       },
@@ -3908,7 +3944,8 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "none",
+          "displayName": "${__field.labels.ipcp}"
         },
         "overrides": []
       },
@@ -4000,7 +4037,8 @@
               }
             ]
           },
-          "unit": "binBps"
+          "unit": "binBps",
+          "displayName": "${__field.labels.ipcp}"
         },
         "overrides": []
       },
@@ -4093,7 +4131,8 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "none",
+          "displayName": "${__field.labels.ipcp}"
         },
         "overrides": []
       },
@@ -4185,7 +4224,8 @@
               }
             ]
           },
-          "unit": "bytes"
+          "unit": "bytes",
+          "displayName": "${__field.labels.ipcp}"
         },
         "overrides": []
       },
@@ -4277,7 +4317,8 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "none",
+          "displayName": "${__field.labels.ipcp}"
         },
         "overrides": []
       },
@@ -4312,2124 +4353,6 @@
       ],
       "title": "Flow allocator received packets",
       "type": "timeseries"
-    },
-    {
-      "collapsed": true,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 141
-      },
-      "id": 134,
-      "panels": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "pps",
-              "displayName": "${__field.labels.system}:${__field.labels.ipcp}"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 7,
-            "w": 6,
-            "x": 0,
-            "y": 142
-          },
-          "id": 126,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "11.6.1",
-          "targets": [
-            {
-              "datasource": {
-                "type": "influxdb",
-                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-              },
-              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"n_snd\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> derivative(unit: 1s, nonNegative: true)\n  |> yield(name: \"rate\")",
-              "refId": "A"
-            }
-          ],
-          "title": "Eth frames sent/s",
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "pps",
-              "displayName": "${__field.labels.system}:${__field.labels.ipcp}"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 7,
-            "w": 6,
-            "x": 6,
-            "y": 142
-          },
-          "id": 127,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "11.6.1",
-          "targets": [
-            {
-              "datasource": {
-                "type": "influxdb",
-                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-              },
-              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"n_rcv\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> derivative(unit: 1s, nonNegative: true)\n  |> yield(name: \"rate\")",
-              "refId": "A"
-            }
-          ],
-          "title": "Eth frames rcvd/s",
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "pps",
-              "displayName": "${__field.labels.system}:${__field.labels.ipcp}"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 7,
-            "w": 6,
-            "x": 12,
-            "y": 142
-          },
-          "id": 128,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "11.6.1",
-          "targets": [
-            {
-              "datasource": {
-                "type": "influxdb",
-                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-              },
-              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"n_mgmt_snd\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> derivative(unit: 1s, nonNegative: true)\n  |> yield(name: \"rate\")",
-              "refId": "A"
-            }
-          ],
-          "title": "Eth mgmt sent/s",
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "pps",
-              "displayName": "${__field.labels.system}:${__field.labels.ipcp}"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 7,
-            "w": 6,
-            "x": 18,
-            "y": 142
-          },
-          "id": 129,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "11.6.1",
-          "targets": [
-            {
-              "datasource": {
-                "type": "influxdb",
-                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-              },
-              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"n_mgmt_rcv\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> derivative(unit: 1s, nonNegative: true)\n  |> yield(name: \"rate\")",
-              "refId": "A"
-            }
-          ],
-          "title": "Eth mgmt rcvd/s",
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "pps",
-              "displayName": "${__field.labels.system}:${__field.labels.ipcp}"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 7,
-            "w": 6,
-            "x": 0,
-            "y": 149
-          },
-          "id": 130,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "11.6.1",
-          "targets": [
-            {
-              "datasource": {
-                "type": "influxdb",
-                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-              },
-              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"n_bad_id\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> derivative(unit: 1s, nonNegative: true)\n  |> yield(name: \"rate\")",
-              "refId": "A"
-            }
-          ],
-          "title": "Eth bad EID/SAP/s",
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "pps",
-              "displayName": "${__field.labels.system}:${__field.labels.ipcp}"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 7,
-            "w": 6,
-            "x": 6,
-            "y": 149
-          },
-          "id": 131,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "11.6.1",
-          "targets": [
-            {
-              "datasource": {
-                "type": "influxdb",
-                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-              },
-              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"n_dlv_f\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> derivative(unit: 1s, nonNegative: true)\n  |> yield(name: \"rate\")",
-              "refId": "A"
-            }
-          ],
-          "title": "Eth N+1 deliv. fail/s",
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "pps",
-              "displayName": "${__field.labels.system}:${__field.labels.ipcp}"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 7,
-            "w": 6,
-            "x": 12,
-            "y": 149
-          },
-          "id": 132,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "11.6.1",
-          "targets": [
-            {
-              "datasource": {
-                "type": "influxdb",
-                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-              },
-              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"kern_drp\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> derivative(unit: 1s, nonNegative: true)\n  |> yield(name: \"rate\")",
-              "refId": "A"
-            }
-          ],
-          "title": "Eth kernel drops/s",
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "bytes",
-              "displayName": "${__field.labels.system}:${__field.labels.ipcp}"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 7,
-            "w": 6,
-            "x": 18,
-            "y": 149
-          },
-          "id": 133,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "11.6.1",
-          "targets": [
-            {
-              "datasource": {
-                "type": "influxdb",
-                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-              },
-              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"sock_ingress\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
-              "refId": "A"
-            }
-          ],
-          "title": "Eth socket ingress",
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "bytes",
-              "displayName": "${__field.labels.system}:${__field.labels.ipcp}"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 7,
-            "w": 6,
-            "x": 18,
-            "y": 163
-          },
-          "id": 214,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "11.6.1",
-          "targets": [
-            {
-              "datasource": {
-                "type": "influxdb",
-                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-              },
-              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"sock_egress\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
-              "refId": "A"
-            }
-          ],
-          "title": "Eth socket egress",
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "short",
-              "displayName": "${__field.labels.system}:${__field.labels.ipcp}"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 7,
-            "w": 6,
-            "x": 0,
-            "y": 156
-          },
-          "id": 152,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "11.6.1",
-          "targets": [
-            {
-              "datasource": {
-                "type": "influxdb",
-                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-              },
-              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"n_flows\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
-              "refId": "A"
-            }
-          ],
-          "title": "Eth active flows",
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "pps",
-              "displayName": "${__field.labels.system}:${__field.labels.ipcp}"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 7,
-            "w": 6,
-            "x": 6,
-            "y": 156
-          },
-          "id": 153,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "11.6.1",
-          "targets": [
-            {
-              "datasource": {
-                "type": "influxdb",
-                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-              },
-              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"n_buf_f\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> derivative(unit: 1s, nonNegative: true)\n  |> yield(name: \"rate\")",
-              "refId": "A"
-            }
-          ],
-          "title": "Eth buf-alloc fails/s",
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "pps",
-              "displayName": "${__field.labels.system}:${__field.labels.ipcp}"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 7,
-            "w": 6,
-            "x": 12,
-            "y": 156
-          },
-          "id": 154,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "11.6.1",
-          "targets": [
-            {
-              "datasource": {
-                "type": "influxdb",
-                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-              },
-              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"n_rcv_f\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> derivative(unit: 1s, nonNegative: true)\n  |> yield(name: \"rate\")",
-              "refId": "A"
-            }
-          ],
-          "title": "Eth frame read fails/s",
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "pps",
-              "displayName": "${__field.labels.system}:${__field.labels.ipcp}"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 7,
-            "w": 6,
-            "x": 18,
-            "y": 156
-          },
-          "id": 155,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "11.6.1",
-          "targets": [
-            {
-              "datasource": {
-                "type": "influxdb",
-                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-              },
-              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"n_snd_f\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> derivative(unit: 1s, nonNegative: true)\n  |> yield(name: \"rate\")",
-              "refId": "A"
-            }
-          ],
-          "title": "Eth frame send fails/s",
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "pps",
-              "displayName": "${__field.labels.system}:${__field.labels.ipcp}"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 7,
-            "w": 6,
-            "x": 0,
-            "y": 163
-          },
-          "id": 156,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "11.6.1",
-          "targets": [
-            {
-              "datasource": {
-                "type": "influxdb",
-                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-              },
-              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"kern_rcv\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> derivative(unit: 1s, nonNegative: true)\n  |> yield(name: \"rate\")",
-              "refId": "A"
-            }
-          ],
-          "title": "Eth kernel frames rcvd/s",
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "bytes",
-              "displayName": "${__field.labels.system}:${__field.labels.ipcp}"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 7,
-            "w": 6,
-            "x": 6,
-            "y": 163
-          },
-          "id": 157,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "11.6.1",
-          "targets": [
-            {
-              "datasource": {
-                "type": "influxdb",
-                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-              },
-              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"sock_rcvbuf\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
-              "refId": "A"
-            }
-          ],
-          "title": "Eth socket rcvbuf",
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "bytes",
-              "displayName": "${__field.labels.system}:${__field.labels.ipcp}"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 7,
-            "w": 6,
-            "x": 12,
-            "y": 163
-          },
-          "id": 158,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "11.6.1",
-          "targets": [
-            {
-              "datasource": {
-                "type": "influxdb",
-                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-              },
-              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"sock_sndbuf\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
-              "refId": "A"
-            }
-          ],
-          "title": "Eth socket sndbuf",
-          "type": "timeseries"
-        }
-      ],
-      "title": "Eth IPCP",
-      "type": "row"
-    },
-    {
-      "collapsed": true,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 149
-      },
-      "id": 141,
-      "panels": [
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "binBps",
-              "displayName": "${__field.labels.system}:${__field.labels.ipcp}/${__field.labels.flow_descriptor}"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 7,
-            "w": 6,
-            "x": 0,
-            "y": 150
-          },
-          "id": 135,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "11.6.1",
-          "targets": [
-            {
-              "datasource": {
-                "type": "influxdb",
-                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-              },
-              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"b_snd\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> derivative(unit: 1s, nonNegative: true)\n  |> yield(name: \"rate\")",
-              "refId": "A"
-            }
-          ],
-          "title": "Eth flow tx",
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "binBps",
-              "displayName": "${__field.labels.system}:${__field.labels.ipcp}/${__field.labels.flow_descriptor}"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 7,
-            "w": 6,
-            "x": 6,
-            "y": 150
-          },
-          "id": 136,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "11.6.1",
-          "targets": [
-            {
-              "datasource": {
-                "type": "influxdb",
-                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-              },
-              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"b_rcv\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> derivative(unit: 1s, nonNegative: true)\n  |> yield(name: \"rate\")",
-              "refId": "A"
-            }
-          ],
-          "title": "Eth flow rx",
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "pps",
-              "displayName": "${__field.labels.system}:${__field.labels.ipcp}/${__field.labels.flow_descriptor}"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 7,
-            "w": 6,
-            "x": 12,
-            "y": 150
-          },
-          "id": 137,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "11.6.1",
-          "targets": [
-            {
-              "datasource": {
-                "type": "influxdb",
-                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-              },
-              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"p_snd\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> derivative(unit: 1s, nonNegative: true)\n  |> yield(name: \"rate\")",
-              "refId": "A"
-            }
-          ],
-          "title": "Eth flow tx pkts/s",
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "pps",
-              "displayName": "${__field.labels.system}:${__field.labels.ipcp}/${__field.labels.flow_descriptor}"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 7,
-            "w": 6,
-            "x": 18,
-            "y": 150
-          },
-          "id": 138,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "11.6.1",
-          "targets": [
-            {
-              "datasource": {
-                "type": "influxdb",
-                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-              },
-              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"p_rcv\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> derivative(unit: 1s, nonNegative: true)\n  |> yield(name: \"rate\")",
-              "refId": "A"
-            }
-          ],
-          "title": "Eth flow rx pkts/s",
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "pps",
-              "displayName": "${__field.labels.system}:${__field.labels.ipcp}/${__field.labels.flow_descriptor}"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 7,
-            "w": 6,
-            "x": 0,
-            "y": 157
-          },
-          "id": 139,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "11.6.1",
-          "targets": [
-            {
-              "datasource": {
-                "type": "influxdb",
-                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-              },
-              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"p_dlv_f\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> derivative(unit: 1s, nonNegative: true)\n  |> yield(name: \"rate\")",
-              "refId": "A"
-            }
-          ],
-          "title": "Eth flow N+1 fail/s",
-          "type": "timeseries"
-        },
-        {
-          "datasource": {
-            "type": "influxdb",
-            "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-          },
-          "fieldConfig": {
-            "defaults": {
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "axisBorderShow": false,
-                "axisCenteredZero": false,
-                "axisColorMode": "text",
-                "axisLabel": "",
-                "axisPlacement": "auto",
-                "barAlignment": 0,
-                "barWidthFactor": 0.6,
-                "drawStyle": "line",
-                "fillOpacity": 0,
-                "gradientMode": "none",
-                "hideFrom": {
-                  "legend": false,
-                  "tooltip": false,
-                  "viz": false
-                },
-                "insertNulls": false,
-                "lineInterpolation": "linear",
-                "lineWidth": 1,
-                "pointSize": 5,
-                "scaleDistribution": {
-                  "type": "linear"
-                },
-                "showPoints": "auto",
-                "spanNulls": false,
-                "stacking": {
-                  "group": "A",
-                  "mode": "none"
-                },
-                "thresholdsStyle": {
-                  "mode": "off"
-                }
-              },
-              "mappings": [],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green"
-                  },
-                  {
-                    "color": "red",
-                    "value": 80
-                  }
-                ]
-              },
-              "unit": "pps",
-              "displayName": "${__field.labels.system}:${__field.labels.ipcp}/${__field.labels.flow_descriptor}"
-            },
-            "overrides": []
-          },
-          "gridPos": {
-            "h": 7,
-            "w": 6,
-            "x": 6,
-            "y": 157
-          },
-          "id": 140,
-          "options": {
-            "legend": {
-              "calcs": [],
-              "displayMode": "list",
-              "placement": "bottom",
-              "showLegend": true
-            },
-            "tooltip": {
-              "hideZeros": false,
-              "mode": "single",
-              "sort": "none"
-            }
-          },
-          "pluginVersion": "11.6.1",
-          "targets": [
-            {
-              "datasource": {
-                "type": "influxdb",
-                "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
-              },
-              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"p_snd_f\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> derivative(unit: 1s, nonNegative: true)\n  |> yield(name: \"rate\")",
-              "refId": "A"
-            }
-          ],
-          "title": "Eth flow send fail/s",
-          "type": "timeseries"
-        }
-      ],
-      "title": "Eth \u2014 per-flow",
-      "type": "row"
     },
     {
       "collapsed": true,
@@ -6731,7 +4654,10 @@
         }
       ],
       "title": "Delta-t constants",
-      "type": "row"
+      "type": "row",
+      "fieldConfig": {
+        "defaults": {}
+      }
     },
     {
       "collapsed": true,
@@ -7509,7 +5435,7 @@
               "refId": "A"
             }
           ],
-          "title": "Receiver Next Sequence Number",
+          "title": "Receiver Last Acknowledged",
           "type": "timeseries"
         },
         {
@@ -7886,7 +5812,10 @@
         }
       ],
       "title": "Delta-t Window",
-      "type": "row"
+      "type": "row",
+      "fieldConfig": {
+        "defaults": {}
+      }
     },
     {
       "collapsed": true,
@@ -8381,7 +6310,10 @@
         }
       ],
       "title": "RTT-estimation",
-      "type": "row"
+      "type": "row",
+      "fieldConfig": {
+        "defaults": {}
+      }
     },
     {
       "collapsed": true,
@@ -8481,7 +6413,7 @@
                 "type": "influxdb",
                 "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
               },
-              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_process_frct_rxm_rto\" or r[\"_measurement\"] == \"ouroboros_process_frct_rxm_rack\" or r[\"_measurement\"] == \"ouroboros_process_frct_rxm_dupthresh\" or r[\"_measurement\"] == \"ouroboros_process_frct_rxm_nack\")\n  |> filter(fn: (r) => r[\"_field\"] == \"rxm_rto\" or r[\"_field\"] == \"rxm_rack\" or r[\"_field\"] == \"rxm_dupthresh\" or r[\"_field\"] == \"rxm_nack\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> derivative(unit: 1s, nonNegative: true)\n  |> group(columns: [\"system\", \"process\", \"flow_descriptor\", \"_time\"])\n  |> sum()\n  |> group(columns: [\"system\", \"process\", \"flow_descriptor\"])\n  |> yield(name: \"rate\")",
+              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_process_frct_rxm_rto\" or r[\"_measurement\"] == \"ouroboros_process_frct_rxm_rack\" or r[\"_measurement\"] == \"ouroboros_process_frct_rxm_zero_reo\" or r[\"_measurement\"] == \"ouroboros_process_frct_rxm_nack\")\n  |> filter(fn: (r) => r[\"_field\"] == \"rxm_rto\" or r[\"_field\"] == \"rxm_rack\" or r[\"_field\"] == \"rxm_zero_reo\" or r[\"_field\"] == \"rxm_nack\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> derivative(unit: 1s, nonNegative: true)\n  |> group(columns: [\"system\", \"process\", \"flow_descriptor\", \"_time\"])\n  |> sum()\n  |> group(columns: [\"system\", \"process\", \"flow_descriptor\"])\n  |> yield(name: \"rate\")",
               "refId": "A"
             }
           ],
@@ -8956,11 +6888,11 @@
                 "type": "influxdb",
                 "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
               },
-              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"rxm_dupthresh\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> derivative(unit: 1s, nonNegative: true)\n  |> yield(name: \"rate\")",
+              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_field\"] == \"rxm_zero_reo\")\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> aggregateWindow(every: v.windowPeriod, fn: max, createEmpty: false)\n  |> derivative(unit: 1s, nonNegative: true)\n  |> yield(name: \"rate\")",
               "refId": "A"
             }
           ],
-          "title": "DupThresh-driven RXMs/s",
+          "title": "Zero-reorder-window RXMs/s",
           "type": "timeseries"
         },
         {
@@ -9155,7 +7087,10 @@
         }
       ],
       "title": "FRCT \u2014 RXM rates",
-      "type": "row"
+      "type": "row",
+      "fieldConfig": {
+        "defaults": {}
+      }
     },
     {
       "collapsed": true,
@@ -10024,7 +7959,10 @@
         }
       ],
       "title": "FRCT \u2014 ACK rates",
-      "type": "row"
+      "type": "row",
+      "fieldConfig": {
+        "defaults": {}
+      }
     },
     {
       "collapsed": true,
@@ -10513,7 +8451,10 @@
         }
       ],
       "title": "FRCT \u2014 anomalies",
-      "type": "row"
+      "type": "row",
+      "fieldConfig": {
+        "defaults": {}
+      }
     },
     {
       "collapsed": true,
@@ -10719,7 +8660,10 @@
         }
       ],
       "title": "FRCT \u2014 rbuff queues",
-      "type": "row"
+      "type": "row",
+      "fieldConfig": {
+        "defaults": {}
+      }
     },
     {
       "collapsed": true,
@@ -11113,7 +9057,10 @@
         }
       ],
       "title": "FRCT \u2014 Fragmentation",
-      "type": "row"
+      "type": "row",
+      "fieldConfig": {
+        "defaults": {}
+      }
     },
     {
       "collapsed": true,
@@ -11507,7 +9454,10 @@
         }
       ],
       "title": "FRCT \u2014 Stream",
-      "type": "row"
+      "type": "row",
+      "fieldConfig": {
+        "defaults": {}
+      }
     },
     {
       "collapsed": true,
@@ -12091,7 +10041,10 @@
         }
       ],
       "title": "FRCT \u2014 Signaling",
-      "type": "row"
+      "type": "row",
+      "fieldConfig": {
+        "defaults": {}
+      }
     },
     {
       "collapsed": true,
@@ -12960,7 +10913,10 @@
         }
       ],
       "title": "FRCT \u2014 Tx ring drops",
-      "type": "row"
+      "type": "row",
+      "fieldConfig": {
+        "defaults": {}
+      }
     },
     {
       "datasource": {
@@ -13018,7 +10974,8 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "short",
+          "displayName": "${__field.labels.ipcp}, ${__field.labels.flow_id}"
         },
         "overrides": []
       },
@@ -13111,7 +11068,8 @@
               }
             ]
           },
-          "unit": "ns"
+          "unit": "ns",
+          "displayName": "${__field.labels.ipcp}, ${__field.labels.flow_id}"
         },
         "overrides": []
       },
@@ -13203,7 +11161,8 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "short",
+          "displayName": "${__field.labels.ipcp}, ${__field.labels.flow_id}"
         },
         "overrides": []
       },
@@ -13638,7 +11597,7 @@
                 "type": "influxdb",
                 "uid": "df36a9e8-5205-4042-9bfb-0516cbcacb4f"
               },
-              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_poa_avg_len\")\n  |> filter(fn: (r) => r[\"_field\"] == \"avg_len\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
+              "query": "from(bucket: \"ouroboros-metrics\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"ouroboros_poa_avg_cost\")\n  |> filter(fn: (r) => r[\"_field\"] == \"avg_cost\")\n  |> filter(fn: (r) => contains(value: r[\"ipcp\"], set: ${_ipcp:json}))\n  |> filter(fn: (r) => contains(value: r[\"system\"], set: ${_system:json}))\n  |> filter(fn: (r) => contains(value: r[\"layer\"], set: ${_layer:json}))\n  |> aggregateWindow(every: ${_interval}, fn: last, createEmpty: false)\n  |> yield(name: \"last\")",
               "refId": "A"
             }
           ],
@@ -14277,7 +12236,10 @@
         }
       ],
       "title": "PoA transport",
-      "type": "row"
+      "type": "row",
+      "fieldConfig": {
+        "defaults": {}
+      }
     }
   ],
   "preload": false,
