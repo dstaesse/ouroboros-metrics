@@ -598,6 +598,8 @@ class OuroborosExporter:
         for process in processes:
             for frct_info in self.ribreader.get_frct_info_for_process(process):
                 for metric, value in frct_info.items():
+                    if metric == 'fd':
+                        continue
                     self._write_ouroboros_process_frct_metric(
                         str(now), metric, frct_info['fd'],
                         process, value)

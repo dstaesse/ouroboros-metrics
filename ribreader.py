@@ -180,10 +180,26 @@ class OuroborosRIBReader:
 
         return None
 
+    @staticmethod
+    def _get_lsdb_link_entries(path: str) -> list[str]:
+
+        entries = []
+
+        try:
+            for entry in os.scandir(path):
+                if not entry.name.startswith('.'):
+                    entries.append(entry.path)
+        except IOError as _:
+            pass
+
+        return entries
+
     def get_lsdb_stats_for_ipcp(self,
                                 ipcp_name: str) -> dict:
         """
-        Get statistics for the link state database of an IPCP
+        Get statistics for the link state database of an IPCP.
+        Entries named '.dt <addr>' and '.mgmt <addr>' list the
+        neighbours and are skipped; every other entry is a link.
         :param ipcp_name: name of the IPCP
         :return: statistics in a dict
         """
@@ -201,13 +217,7 @@ class OuroborosRIBReader:
         neighbors = 0
         links = 0
 
-        lsdb_entries = []
-        try:
-            lsdb_entries = [f.path for f in os.scandir(path)]
-        except IOError as _:
-            pass
-
-        for lsdb_entry in lsdb_entries:
+        for lsdb_entry in self._get_lsdb_link_entries(path):
             try:
                 with open(lsdb_entry, encoding='utf-8') as e:
                     for line in e.readlines():
