@@ -12,6 +12,8 @@ InfluxDB or to a file.
 
 from __future__ import annotations
 
+import argparse
+import configparser
 import ctypes
 import ctypes.util
 import os
@@ -21,19 +23,17 @@ import sys
 import threading
 import time
 import traceback
-import argparse
-import configparser
 from abc import ABC, abstractmethod
 from datetime import datetime
 from types import TracebackType
 from typing import Any, Optional
 
 from influxdb_client import InfluxDBClient, Point
-from influxdb_client.client.write_api import WriteOptions, PointSettings
+from influxdb_client.client.write_api import PointSettings, WriteOptions
 from influxdb_client.rest import ApiException
 from pytz import utc
 
-from ribreader import OuroborosRIBReader, IPCP_TYPES
+from ribreader import IPCP_TYPES, OuroborosRIBReader
 
 _CLOCK_MONOTONIC = 1
 _TFD_CLOEXEC = 0o2000000
@@ -421,7 +421,7 @@ class OuroborosExporter:
                                     poa: str,
                                     ipcp_name: str,
                                     layer: str,
-                                    value) -> None:
+                                    value: Any) -> None:
         point = {
             'measurement': f'ouroboros_poa_{metric}',
             'tags': {
@@ -617,7 +617,7 @@ class OuroborosExporter:
 
     def _safe_export(self, step: Any) -> None:
         """
-        Run one export step, reporting a failure instead of raising.
+        Run one export step and report a failure to stderr.
 
         The RIB is a live filesystem: entries appear and vanish while it
         is walked, and a read can fail on a component that is shutting
