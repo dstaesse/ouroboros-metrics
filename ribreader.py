@@ -679,6 +679,8 @@ class OuroborosRIBReader:
             "Mean packet cost": "avg_cost",
             "Kernel packets received": "kern_rcv",
             "Kernel packets dropped": "kern_drp",
+            "Qdisc backlog (bytes)": "qdisc_bytes",
+            "Qdisc backlog (packets)": "qdisc_pkts",
         }
 
         ret = {}
